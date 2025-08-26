@@ -1,114 +1,120 @@
 import streamlit as st
 import random
-from gtts import gTTS
-import base64
-import os
+import speech_recognition as sr
 
-# ----------------------------
-# Banco de frases por nível
-# ----------------------------
-nivel_facil = [
-    ("Hi, how are you?", "I'm fine, thanks.", "Oi, como você está? → Estou bem, obrigado."),
-    ("What’s your name?", "My name is John.", "Qual é o seu nome? → Meu nome é John."),
-    ("Do you like coffee?", "Yes, I like coffee.", "Você gosta de café? → Sim, eu gosto de café."),
-    ("Good morning!", "Good morning!", "Bom dia!"),
-    ("Thank you!", "You're welcome.", "Obrigado! → De nada."),
-    ("See you later!", "See you!", "Até mais! → Até logo."),
-    ("Excuse me", "Yes?", "Com licença → Sim?"),
-    ("I need help", "I can help you.", "Preciso de ajuda → Eu posso ajudar."),
-    ("Where is the restroom?", "It is over there.", "Onde fica o banheiro? → Fica ali."),
-    ("I am ready", "Great! Let's start.", "Estou pronto → Ótimo! Vamos começar."),
-]
+# ==============================
+# Frases de treino
+# ==============================
+frases = {
+    "fácil": [
+        ("I like apples", "Eu gosto de maçãs"),
+        ("She is happy", "Ela está feliz"),
+        ("We are friends", "Nós somos amigos"),
+        ("He has a dog", "Ele tem um cachorro"),
+        ("The sky is blue", "O céu é azul"),
+    ],
+    "médio": [
+        ("I will travel tomorrow", "Eu viajarei amanhã"),
+        ("She is reading a book", "Ela está lendo um livro"),
+        ("They are playing football", "Eles estão jogando futebol"),
+        ("He is cooking dinner", "Ele está cozinhando o jantar"),
+        ("We are studying English", "Nós estamos estudando inglês"),
+    ],
+    "difícil": [
+        ("If I had known, I would have helped you", "Se eu soubesse, teria ajudado você"),
+        ("She might have finished the work by now", "Ela pode já ter terminado o trabalho agora"),
+        ("They should have arrived earlier", "Eles deveriam ter chegado mais cedo"),
+        ("Had I studied harder, I would have passed the test", "Se eu tivesse estudado mais, teria passado na prova"),
+        ("We could have won if we had tried", "Nós poderíamos ter vencido se tivéssemos tentado"),
+    ],
+}
 
-nivel_medio = [
-    ("Where is the box?", "The box is on the table.", "Onde está a caixa? → A caixa está na mesa."),
-    ("Can you help me?", "Yes, I can help you.", "Você pode me ajudar? → Sim, eu posso te ajudar."),
-    ("Do you work here?", "Yes, I do.", "Você trabalha aqui? → Sim, eu trabalho aqui."),
-    ("I need this item", "I will get it for you.", "Preciso deste item → Vou pegar para você."),
-    ("Check the inventory", "I will check it now.", "Verifique o inventário → Vou verificar agora."),
-    ("When will it arrive?", "Tomorrow morning.", "Quando vai chegar? → Amanhã de manhã."),
-    ("Where can I find the supplies?", "They are in aisle 3.", "Onde posso encontrar os suprimentos? → No corredor 3."),
-    ("Please sign here", "Okay, I will sign.", "Por favor, assine aqui → Ok, vou assinar."),
-    ("The truck is here", "I will unload it.", "O caminhão chegou → Vou descarregar."),
-    ("We need more boxes", "I will order them.", "Precisamos de mais caixas → Vou pedir."),
-]
-
-nivel_dificil = [
-    ("Do we have this item in stock?", "Yes, we have it.", "Temos este item em estoque? → Sim, temos."),
-    ("Please, sign the paper.", "Okay, I will sign.", "Por favor, assine o papel → Ok, eu vou assinar."),
-    ("The truck just arrived.", "I will check it.", "O caminhão acabou de chegar → Eu vou verificar."),
-    ("Where can I find the new supplies?", "They are in aisle 3.", "Onde posso encontrar os novos suprimentos? → Estão no corredor 3."),
-    ("Check the inventory for today.", "I will check it now.", "Verifique o inventário de hoje → Vou verificar agora."),
-    ("Can you organize the shelf?", "Yes, I will organize it.", "Pode organizar a prateleira → Sim, vou organizar."),
-    ("We need to prepare the order", "I will prepare it.", "Precisamos preparar o pedido → Vou preparar."),
-    ("Is this item damaged?", "No, it is fine.", "Este item está danificado? → Não, está ok."),
-    ("Confirm the delivery", "I will confirm it.", "Confirme a entrega → Vou confirmar."),
-    ("Update the stock list", "I will update it.", "Atualize a lista de estoque → Vou atualizar."),
-]
-
-# ----------------------------
-# Função para gerar áudio
-# ----------------------------
-def gerar_audio(texto, lang="en"):
-    tts = gTTS(text=texto, lang=lang)
-    filename = "voz.mp3"
-    tts.save(filename)
-    with open(filename, "rb") as f:
-        b64 = base64.b64encode(f.read()).decode()
-    os.remove(filename)
-    return f'<audio autoplay controls src="data:audio/mp3;base64,{b64}"></audio>'
-
-# ----------------------------
-# Configurações Streamlit
-# ----------------------------
-st.set_page_config(page_title="Treino de Inglês - Almoxarifado", page_icon="📦")
-st.title("📦 English Dialogue Trainer - Almoxarifado")
-
-# Seleção de nível
-nivel = st.selectbox("Selecione o nível:", ["Fácil", "Médio", "Difícil"])
-banco = nivel_facil if nivel == "Fácil" else nivel_medio if nivel == "Médio" else nivel_dificil
-
-# Sessão de estado
+# ==============================
+# Inicialização de estado
+# ==============================
+if "nivel" not in st.session_state:
+    st.session_state.nivel = None
 if "frase_atual" not in st.session_state:
-    st.session_state.frase_atual = random.choice(banco)
-    st.session_state.score = 0
-    st.session_state.total = 0
+    st.session_state.frase_atual = None
+if "mostrar_resposta" not in st.session_state:
+    st.session_state.mostrar_resposta = False
+if "resposta_usuario" not in st.session_state:
+    st.session_state.resposta_usuario = ""
+if "modo_audio" not in st.session_state:
+    st.session_state.modo_audio = False
 
-pergunta, resposta_correta, traducao = st.session_state.frase_atual
+# ==============================
+# Funções
+# ==============================
+def escolher_frase(nivel):
+    st.session_state.frase_atual = random.choice(frases[nivel])
+    st.session_state.mostrar_resposta = False
+    st.session_state.resposta_usuario = ""
 
-st.subheader("Frase para treinar:")
+def reconhecer_audio():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        st.info("🎤 Fale agora...")
+        audio = r.listen(source)
+        try:
+            texto = r.recognize_google(audio, language="en-US")
+            st.success(f"Você disse: {texto}")
+            return texto
+        except sr.UnknownValueError:
+            st.error("Não entendi o que você disse.")
+        except sr.RequestError:
+            st.error("Erro no serviço de reconhecimento de voz.")
+    return ""
 
-# 👉 Exibição diferente dependendo do nível
-if nivel == "Fácil":
-    st.markdown(f"**{pergunta}**  \n*({traducao})*")
+# ==============================
+# Layout principal
+# ==============================
+st.title("🇺🇸 Treinamento de Inglês")
+
+# Escolher nível
+st.sidebar.header("Configuração")
+nivel = st.sidebar.radio("Escolha o nível:", ["fácil", "médio", "difícil"])
+
+if st.session_state.nivel != nivel or st.session_state.frase_atual is None:
+    st.session_state.nivel = nivel
+    escolher_frase(nivel)
+
+frase_en, frase_pt = st.session_state.frase_atual
+
+st.subheader("Traduza a frase:")
+
+# Mostrar frase de acordo com nível
+if nivel == "fácil":
+    st.write(f"**Inglês:** {frase_en}")
+    st.write(f"**Português:** {frase_pt}")
 else:
-    st.markdown(f"**{pergunta}**")
+    st.write(f"**Inglês:** {frase_en}")
 
-# Botão para ouvir a frase
-if st.button("🔊 Ouvir frase em inglês"):
-    st.markdown(gerar_audio(pergunta), unsafe_allow_html=True)
+# Opção de resposta
+modo = st.radio("Como você quer responder?", ["✍️ Texto", "🎤 Áudio"])
 
-# Entrada de resposta
-resposta_usuario = st.text_input("Digite sua resposta em inglês:")
+if modo == "✍️ Texto":
+    resposta = st.text_input("Digite sua resposta em inglês ou português:", value=st.session_state.resposta_usuario)
+    st.session_state.resposta_usuario = resposta
+elif modo == "🎤 Áudio":
+    if st.button("🎙️ Gravar resposta"):
+        resposta_audio = reconhecer_audio()
+        if resposta_audio:
+            st.session_state.resposta_usuario = resposta_audio
 
-if st.button("✅ Verificar resposta"):
-    st.session_state.total += 1
-    if resposta_usuario.strip().lower() == resposta_correta.lower():
-        st.success("✅ Correto!")
-        st.session_state.score += 1
-        st.markdown(gerar_audio("Correct! Well done!", "en"), unsafe_allow_html=True)
-    else:
-        st.error(f"❌ Errado. Resposta correta: {resposta_correta}")
-        st.markdown(gerar_audio("Not quite. Try again!", "en"), unsafe_allow_html=True)
+# Botão para verificar
+if st.button("Verificar resposta"):
+    st.session_state.mostrar_resposta = True
 
-    # 👉 Tradução aparece só depois da verificação nos níveis Médio/Difícil
-    if nivel != "Fácil":
-        st.info(f"Tradução: {traducao}")
+# Mostrar resultado
+if st.session_state.mostrar_resposta:
+    st.write("### ✅ Resposta correta:")
+    st.write(f"- Inglês: **{frase_en}**")
+    st.write(f"- Português: **{frase_pt}**")
 
-# Botão para próxima frase
-if st.button("➡ Próxima frase"):
-    st.session_state.frase_atual = random.choice(banco)
-    st.rerun()  # substitui experimental_rerun()
+    if st.session_state.resposta_usuario:
+        st.write("### 📌 Sua resposta:")
+        st.write(st.session_state.resposta_usuario)
 
-# Mostrar score
-st.info(f"Pontuação: {st.session_state.score}/{st.session_state.total}")
+    if st.button("Próxima frase"):
+        escolher_frase(nivel)
