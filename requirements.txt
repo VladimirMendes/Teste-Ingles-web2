@@ -1,4 +1,5 @@
-streamlit
-gtts
-SpeechRecognition
-audio-recorder-streamlit
+streamlit==1.38.0
+googletrans==4.0.0rc1
+gtts==2.5.3
+SpeechRecognition==3.10.4
+pydub==0.25.1
