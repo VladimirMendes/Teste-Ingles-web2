@@ -14,49 +14,48 @@ from audio_recorder_streamlit import audio_recorder
 # Banco de frases por nível
 # ----------------------------
 nivel_facil = [
-    ("Hi, how are you?", "I'm fine, thanks.", "Oi, como você está? → Estou bem, obrigado."),
-    ("What’s your name?", "My name is John.", "Qual é o seu nome? → Meu nome é John."),
-    ("Do you like coffee?", "Yes, I like coffee.", "Você gosta de café? → Sim, eu gosto de café."),
-    ("Good morning!", "Good morning!", "Bom dia!"),
-    ("Thank you!", "You're welcome.", "Obrigado! → De nada."),
-    ("See you later!", "See you!", "Até mais! → Até logo."),
-    ("Excuse me", "Yes?", "Com licença → Sim?"),
-    ("I need help", "I can help you.", "Preciso de ajuda → Eu posso ajudar."),
-    ("Where is the restroom?", "It is over there.", "Onde fica o banheiro? → Fica ali."),
-    ("I am ready", "Great! Let's start.", "Estou pronto → Ótimo! Vamos começar."),
+    ("Hi, how are you?", "I'm fine, thanks.", "Oi, como você está?", "Estou bem, obrigado."),
+    ("What’s your name?", "My name is John.", "Qual é o seu nome?", "Meu nome é John."),
+    ("Do you like coffee?", "Yes, I like coffee.", "Você gosta de café?", "Sim, eu gosto de café."),
+    ("Good morning!", "Good morning!", "Bom dia!", "Bom dia!"),
+    ("Thank you!", "You're welcome.", "Obrigado!", "De nada."),
+    ("See you later!", "See you!", "Até mais!", "Até logo."),
+    ("Excuse me", "Yes?", "Com licença", "Sim?"),
+    ("I need help", "I can help you.", "Preciso de ajuda", "Eu posso ajudar."),
+    ("Where is the restroom?", "It is over there.", "Onde fica o banheiro?", "Fica ali."),
+    ("I am ready", "Great! Let's start.", "Estou pronto", "Ótimo! Vamos começar."),
 ]
 
 nivel_medio = [
-    ("Where is the box?", "The box is on the table.", "Onde está a caixa? → A caixa está na mesa."),
-    ("Can you help me?", "Yes, I can help you.", "Você pode me ajudar? → Sim, eu posso te ajudar."),
-    ("Do you work here?", "Yes, I do.", "Você trabalha aqui? → Sim, eu trabalho aqui."),
-    ("I need this item", "I will get it for you.", "Preciso deste item → Vou pegar para você."),
-    ("Check the inventory", "I will check it now.", "Verifique o inventário → Vou verificar agora."),
-    ("When will it arrive?", "Tomorrow morning.", "Quando vai chegar? → Amanhã de manhã."),
-    ("Where can I find the supplies?", "They are in aisle 3.", "Onde posso encontrar os suprimentos? → No corredor 3."),
-    ("Please sign here", "Okay, I will sign.", "Por favor, assine aqui → Ok, vou assinar."),
-    ("The truck is here", "I will unload it.", "O caminhão chegou → Vou descarregar."),
-    ("We need more boxes", "I will order them.", "Precisamos de mais caixas → Vou pedir."),
+    ("Where is the box?", "The box is on the table.", "Onde está a caixa?", "A caixa está na mesa."),
+    ("Can you help me?", "Yes, I can help you.", "Você pode me ajudar?", "Sim, eu posso te ajudar."),
+    ("Do you work here?", "Yes, I do.", "Você trabalha aqui?", "Sim, eu trabalho aqui."),
+    ("I need this item", "I will get it for you.", "Preciso deste item", "Vou pegar para você."),
+    ("Check the inventory", "I will check it now.", "Verifique o inventário", "Vou verificar agora."),
+    ("When will it arrive?", "Tomorrow morning.", "Quando vai chegar?", "Amanhã de manhã."),
+    ("Where can I find the supplies?", "They are in aisle 3.", "Onde posso encontrar os suprimentos?", "No corredor 3."),
+    ("Please sign here", "Okay, I will sign.", "Por favor, assine aqui", "Ok, vou assinar."),
+    ("The truck is here", "I will unload it.", "O caminhão chegou", "Vou descarregar."),
+    ("We need more boxes", "I will order them.", "Precisamos de mais caixas", "Vou pedir."),
 ]
 
 nivel_dificil = [
-    ("Do we have this item in stock?", "Yes, we have it.", "Temos este item em estoque? → Sim, temos."),
-    ("Please, sign the paper.", "Okay, I will sign.", "Por favor, assine o papel → Ok, eu vou assinar."),
-    ("The truck just arrived.", "I will check it.", "O caminhão acabou de chegar → Eu vou verificar."),
-    ("Where can I find the new supplies?", "They are in aisle 3.", "Onde posso encontrar os novos suprimentos? → Estão no corredor 3."),
-    ("Check the inventory for today.", "I will check it now.", "Verifique o inventário de hoje → Vou verificar agora."),
-    ("Can you organize the shelf?", "Yes, I will organize it.", "Pode organizar a prateleira → Sim, vou organizar."),
-    ("We need to prepare the order", "I will prepare it.", "Precisamos preparar o pedido → Vou preparar."),
-    ("Is this item damaged?", "No, it is fine.", "Este item está danificado? → Não, está ok."),
-    ("Confirm the delivery", "I will confirm it.", "Confirme a entrega → Vou confirmar."),
-    ("Update the stock list", "I will update it.", "Atualize a lista de estoque → Vou atualizar."),
+    ("Do we have this item in stock?", "Yes, we have it.", "Temos este item em estoque?", "Sim, temos."),
+    ("Please, sign the paper.", "Okay, I will sign.", "Por favor, assine o papel", "Ok, eu vou assinar."),
+    ("The truck just arrived.", "I will check it.", "O caminhão acabou de chegar", "Eu vou verificar."),
+    ("Where can I find the new supplies?", "They are in aisle 3.", "Onde posso encontrar os novos suprimentos?", "Estão no corredor 3."),
+    ("Check the inventory for today.", "I will check it now.", "Verifique o inventário de hoje", "Vou verificar agora."),
+    ("Can you organize the shelf?", "Yes, I will organize it.", "Pode organizar a prateleira", "Sim, vou organizar."),
+    ("We need to prepare the order", "I will prepare it.", "Precisamos preparar o pedido", "Vou preparar."),
+    ("Is this item damaged?", "No, it is fine.", "Este item está danificado?", "Não, está ok."),
+    ("Confirm the delivery", "I will confirm it.", "Confirme a entrega", "Vou confirmar."),
+    ("Update the stock list", "I will update it.", "Atualize a lista de estoque", "Vou atualizar."),
 ]
 
 # ----------------------------
 # Utilidades
 # ----------------------------
 def gerar_audio(texto, lang="en"):
-    """Gera um <audio> HTML com autoplay a partir de texto usando gTTS."""
     tts = gTTS(text=texto, lang=lang)
     filename = "voz.mp3"
     tts.save(filename)
@@ -84,7 +83,7 @@ def verificar_texto(resposta_usuario: str, resposta_correta: str):
         return ("success", "✅ Correto!", 1)
     sim = similaridade(resposta_usuario, resposta_correta)
     if sim >= 0.80:
-        return ("info", f"Quase lá (similaridade {sim*100:.0f}%). Revise pequenos detalhes.", 0)
+        return ("info", f"Quase lá (similaridade {sim*100:.0f}%).", 0)
     return ("error", f"❌ Errado (similaridade {sim*100:.0f}%).", 0)
 
 def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
@@ -127,23 +126,23 @@ elif st.session_state.nivel_sel != nivel:
     st.session_state.feedback = ""
     st.rerun()
 
-pergunta, resposta_correta, traducao = st.session_state.frase_atual
+pergunta_en, resposta_en, pergunta_pt, resposta_pt = st.session_state.frase_atual
 
-# --- Exibição da frase ---
+# --- Exibição ---
 st.subheader("Frase para treinar:")
-if nivel == "Fácil":
-    st.markdown(f"**{pergunta}**  \n*({traducao})*")
-else:
-    st.markdown(f"**{pergunta}**")  # Médio/Difícil só inglês
+st.markdown(f"**{pergunta_en}**  \n*({pergunta_pt})*")
+
+st.subheader("Resposta sugerida:")
+st.markdown(f"**{resposta_en}**  \n*({resposta_pt})*")
 
 # --- Ouvir ---
 col1, col2 = st.columns(2)
 with col1:
     if st.button("🔊 Ouvir frase em inglês"):
-        st.markdown(gerar_audio(pergunta, "en"), unsafe_allow_html=True)
+        st.markdown(gerar_audio(pergunta_en, "en"), unsafe_allow_html=True)
 with col2:
     if st.button("🔊 Ouvir resposta correta"):
-        st.markdown(gerar_audio(resposta_correta, "en"), unsafe_allow_html=True)
+        st.markdown(gerar_audio(resposta_en, "en"), unsafe_allow_html=True)
 
 st.divider()
 
@@ -153,7 +152,7 @@ resposta_usuario = st.text_input("Digite sua resposta em inglês:")
 
 if st.button("✅ Verificar resposta (texto)"):
     st.session_state.total += 1
-    status, msg, inc = verificar_texto(resposta_usuario, resposta_correta)
+    status, msg, inc = verificar_texto(resposta_usuario, resposta_en)
     st.session_state.score += inc
 
     if status == "success":
@@ -166,15 +165,10 @@ if st.button("✅ Verificar resposta (texto)"):
     else:
         st.error(msg)
 
-    st.session_state.feedback = (
-        f"**Resposta correta:** {resposta_correta}  \n"
-        f"**Tradução:** {traducao}"
-    )
-
 # --- Resposta por ÁUDIO ---
 st.divider()
 st.markdown("**Responder falando (microfone):**")
-st.caption("Clique no botão abaixo para gravar. Clique novamente para parar. Depois clique em **Transcrever e verificar**.")
+st.caption("Clique em gravar, depois em transcrever e verificar.")
 
 audio_bytes = audio_recorder(sample_rate=44100, pause_threshold=2.0, text="🎙️ Gravar / Parar")
 
@@ -188,7 +182,7 @@ if audio_bytes:
         else:
             st.write(f"**Você disse:** _{transcrito}_")
             st.session_state.total += 1
-            status, msg, inc = verificar_texto(transcrito, resposta_correta)
+            status, msg, inc = verificar_texto(transcrito, resposta_en)
             st.session_state.score += inc
 
             if status == "success":
@@ -199,20 +193,10 @@ if audio_bytes:
             else:
                 st.error(msg)
 
-            st.session_state.feedback = (
-                f"**Resposta correta:** {resposta_correta}  \n"
-                f"**Tradução:** {traducao}"
-            )
-
-# --- Feedback final ---
-if st.session_state.get("feedback"):
-    st.info(st.session_state.feedback)
-
 st.divider()
 
 if st.button("➡ Próxima frase"):
     st.session_state.frase_atual = random.choice(banco)
-    st.session_state.feedback = ""
     st.rerun()
 
 st.success(f"Pontuação: {st.session_state.score}/{st.session_state.total}")
