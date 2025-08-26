@@ -77,7 +77,12 @@ if "frase_atual" not in st.session_state:
 pergunta, resposta_correta, traducao = st.session_state.frase_atual
 
 st.subheader("Frase para treinar:")
-st.markdown(f"**{pergunta}**  \n*({traducao})*")
+
+# 👉 Exibição diferente dependendo do nível
+if nivel == "Fácil":
+    st.markdown(f"**{pergunta}**  \n*({traducao})*")
+else:
+    st.markdown(f"**{pergunta}**")
 
 # Botão para ouvir a frase
 if st.button("🔊 Ouvir frase em inglês"):
@@ -89,17 +94,21 @@ resposta_usuario = st.text_input("Digite sua resposta em inglês:")
 if st.button("✅ Verificar resposta"):
     st.session_state.total += 1
     if resposta_usuario.strip().lower() == resposta_correta.lower():
-        st.success(f"✅ Correto! Tradução: {traducao}")
+        st.success("✅ Correto!")
         st.session_state.score += 1
         st.markdown(gerar_audio("Correct! Well done!", "en"), unsafe_allow_html=True)
     else:
-        st.error(f"❌ Errado. Resposta correta: {resposta_correta}  \nTradução: {traducao}")
+        st.error(f"❌ Errado. Resposta correta: {resposta_correta}")
         st.markdown(gerar_audio("Not quite. Try again!", "en"), unsafe_allow_html=True)
+
+    # 👉 Tradução aparece só depois da verificação nos níveis Médio/Difícil
+    if nivel != "Fácil":
+        st.info(f"Tradução: {traducao}")
 
 # Botão para próxima frase
 if st.button("➡ Próxima frase"):
     st.session_state.frase_atual = random.choice(banco)
-    st.experimental_rerun()
+    st.rerun()  # substitui experimental_rerun()
 
 # Mostrar score
 st.info(f"Pontuação: {st.session_state.score}/{st.session_state.total}")
