@@ -448,4 +448,4 @@ st.divider()
 # Rodapé
 # =============================
 st.success(f"Pontuação: {st.session_state.score}/{st.session_state.total} | 🔥 Streak: {st.session_state.streak} | 🏅 Melhor: {st.session_state.best_streak} | 🏆 Recorde: {st.session_state.high_score}")
-st.caption("Dica: no **Médio**, use o botão para mostrar/ocultar a tradução. No **Difícil*
+st.caption("Dica: no **Médio**, use o botão para mostrar/ocultar a tradução. No **Difícil**, tente responder sem ajuda.")
