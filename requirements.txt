@@ -8,3 +8,4 @@ googletrans==4.0.0-rc1
 scikit-learn==1.5.1
 pandas==2.2.2
 numpy==1.26.4
+gtts==2.5.3
