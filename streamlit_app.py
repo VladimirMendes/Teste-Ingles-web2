@@ -79,12 +79,18 @@ def similaridade(a: str, b: str) -> float:
 def verificar_texto(resposta_usuario: str, resposta_correta: str):
     if not resposta_usuario.strip():
         return ("warn", "Digite sua resposta ou use o microfone.", 0)
+
     if normalizar(resposta_usuario) == normalizar(resposta_correta):
         return ("success", "✅ Correto!", 1)
+
     sim = similaridade(resposta_usuario, resposta_correta)
-    if sim >= 0.80:
-        return ("info", f"Quase lá (similaridade {sim*100:.0f}%).", 0)
-    return ("error", f"❌ Errado (similaridade {sim*100:.0f}%).", 0)
+
+    if sim >= 0.9:
+        return ("info", f"Quase perfeito! (similaridade {sim*100:.0f}%).", 0)
+    elif sim >= 0.75:
+        return ("error", f"Pequenos erros detectados (similaridade {sim*100:.0f}%).", 0)
+    else:
+        return ("error", f"❌ Errado (similaridade {sim*100:.0f}%).", 0)
 
 def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
     r = sr.Recognizer()
@@ -112,28 +118,40 @@ st.title("📦 English Dialogue Trainer - Almoxarifado")
 nivel = st.selectbox("Selecione o nível:", ["Fácil", "Médio", "Difícil"])
 banco = nivel_facil if nivel == "Fácil" else nivel_medio if nivel == "Médio" else nivel_dificil
 
+# Inicializar session_state
 if "frase_atual" not in st.session_state:
     st.session_state.frase_atual = random.choice(banco)
     st.session_state.score = 0
     st.session_state.total = 0
-    st.session_state.feedback = ""
+    st.session_state.streak = 0
+    st.session_state.historico = []
 
 if "nivel_sel" not in st.session_state:
     st.session_state.nivel_sel = nivel
 elif st.session_state.nivel_sel != nivel:
     st.session_state.nivel_sel = nivel
     st.session_state.frase_atual = random.choice(banco)
-    st.session_state.feedback = ""
+    st.session_state.streak = 0
     st.rerun()
 
 pergunta_en, resposta_en, pergunta_pt, resposta_pt = st.session_state.frase_atual
 
 # --- Exibição ---
 st.subheader("Frase para treinar:")
-st.markdown(f"**{pergunta_en}**  \n*({pergunta_pt})*")
+st.markdown(f"**{pergunta_en}**")
+if nivel == "Fácil":
+    st.markdown(f"*({pergunta_pt})*")
+else:
+    if st.checkbox("Mostrar tradução", False):
+        st.markdown(f"*({pergunta_pt})*")
 
 st.subheader("Resposta sugerida:")
-st.markdown(f"**{resposta_en}**  \n*({resposta_pt})*")
+st.markdown(f"**{resposta_en}**")
+if nivel == "Fácil":
+    st.markdown(f"*({resposta_pt})*")
+else:
+    if st.checkbox("Mostrar tradução da resposta", False):
+        st.markdown(f"*({resposta_pt})*")
 
 # --- Ouvir ---
 col1, col2 = st.columns(2)
@@ -154,9 +172,14 @@ if st.button("✅ Verificar resposta (texto)"):
     st.session_state.total += 1
     status, msg, inc = verificar_texto(resposta_usuario, resposta_en)
     st.session_state.score += inc
+    st.session_state.streak = st.session_state.streak + 1 if inc == 1 else 0
+
+    st.session_state.historico.append(
+        {"modo": "Texto", "resposta": resposta_usuario, "esperado": resposta_en, "resultado": msg}
+    )
 
     if status == "success":
-        st.success(msg)
+        st.success(msg + f" 🔥 Streak: {st.session_state.streak}")
         st.markdown(gerar_audio("Correct! Well done!", "en"), unsafe_allow_html=True)
     elif status == "info":
         st.info(msg)
@@ -164,6 +187,7 @@ if st.button("✅ Verificar resposta (texto)"):
         st.warning(msg)
     else:
         st.error(msg)
+        st.session_state.streak = 0
 
 # --- Resposta por ÁUDIO ---
 st.divider()
@@ -184,14 +208,20 @@ if audio_bytes:
             st.session_state.total += 1
             status, msg, inc = verificar_texto(transcrito, resposta_en)
             st.session_state.score += inc
+            st.session_state.streak = st.session_state.streak + 1 if inc == 1 else 0
+
+            st.session_state.historico.append(
+                {"modo": "Áudio", "resposta": transcrito, "esperado": resposta_en, "resultado": msg}
+            )
 
             if status == "success":
-                st.success(msg)
+                st.success(msg + f" 🔥 Streak: {st.session_state.streak}")
                 st.markdown(gerar_audio("Great pronunciation!", "en"), unsafe_allow_html=True)
             elif status == "info":
                 st.info(msg)
             else:
                 st.error(msg)
+                st.session_state.streak = 0
 
 st.divider()
 
@@ -199,4 +229,10 @@ if st.button("➡ Próxima frase"):
     st.session_state.frase_atual = random.choice(banco)
     st.rerun()
 
-st.success(f"Pontuação: {st.session_state.score}/{st.session_state.total}")
+st.success(f"Pontuação: {st.session_state.score}/{st.session_state.total} | 🔥 Streak atual: {st.session_state.streak}")
+
+# Histórico de respostas
+if st.session_state.historico:
+    st.subheader("📜 Histórico de respostas")
+    for h in st.session_state.historico[-10:][::-1]:
+        st.markdown(f"- **{h['modo']}** → Você disse: _{h['resposta']}_ | Correto: **{h['esperado']}** → {h['resultado']}")
