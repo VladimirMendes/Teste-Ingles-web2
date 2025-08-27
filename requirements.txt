@@ -1,6 +1,7 @@
 streamlit==1.38.0
-googletrans==4.0.0rc1
-gtts==2.5.3
+audio-recorder-streamlit==0.0.8
 SpeechRecognition==3.10.4
 pydub==0.25.1
-audio-recorder-streamlit==0.0.8
+numpy==1.26.4
+scikit-learn==1.5.1
+python-dotenv==1.0.1
