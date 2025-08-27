@@ -11,7 +11,6 @@ from gtts import gTTS
 import speech_recognition as sr
 from audio_recorder_streamlit import audio_recorder
 import pandas as pd
-from streamlit_webrtc import webrtc_streamer
 
 # =============================
 # Configuração da página
@@ -68,7 +67,7 @@ nivel_dificil = [
 # Utilidades
 # =============================
 def gerar_audio(texto, lang="en"):
-    """Gera um <audio> HTML com autoplay desativado (somente player) a partir de texto usando gTTS."""
+    """Gera um <audio> HTML (player manual) a partir de texto usando gTTS."""
     tts = gTTS(text=texto, lang=lang)
     filename = "voz.mp3"
     tts.save(filename)
@@ -78,7 +77,6 @@ def gerar_audio(texto, lang="en"):
         os.remove(filename)
     except Exception:
         pass
-    # Sem autoplay!
     return f'<audio controls src="data:audio/mp3;base64,{b64}"></audio>'
 
 def normalizar(txt: str) -> str:
@@ -93,16 +91,9 @@ def similaridade(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, normalizar(a), normalizar(b)).ratio()
 
 def classificar_erro(user: str, correct: str) -> str:
-    """
-    Heurística simples para detalhar feedback:
-    - sim >= 0.90: bem próximo (talvez pontuação)
-    - 0.80–0.89: pequeno erro de palavra/artigo/plural/ordem
-    - 0.60–0.79: diferença moderada (possível problema de pronúncia na fala)
-    - < 0.60: diferença grande (recomenda praticar novamente)
-    """
     sim = similaridade(user, correct)
     if sim >= 0.90:
-        return f"Quase perfeito (similaridade {sim*100:.0f}%). Revise pontuação/capot. mínimas."
+        return f"Quase perfeito (similaridade {sim*100:.0f}%). Revise pontuação mínima."
     if sim >= 0.80:
         return f"Pequeno erro (similaridade {sim*100:.0f}%). Cheque artigos, plural ou ordem."
     if sim >= 0.60:
@@ -111,7 +102,7 @@ def classificar_erro(user: str, correct: str) -> str:
 
 def verificar_texto(resposta_usuario: str, resposta_correta: str):
     """Retorna (status, msg, inc, sim)"""
-    if not resposta_usuario.strip():
+    if not resposta_usuario or not resposta_usuario.strip():
         return ("warn", "Digite sua resposta ou use o microfone.", 0, 0.0)
     if normalizar(resposta_usuario) == normalizar(resposta_correta):
         return ("success", "✅ Correto!", 1, 1.0)
@@ -121,7 +112,7 @@ def verificar_texto(resposta_usuario: str, resposta_correta: str):
     return ("error", classificar_erro(resposta_usuario, resposta_correta), 0, sim)
 
 def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
-    """Transcreve bytes WAV usando Google Web Speech (via SpeechRecognition)."""
+    """Transcreve bytes WAV usando SpeechRecognition (Google)."""
     r = sr.Recognizer()
     with NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
         tmp.write(wav_bytes)
@@ -131,6 +122,8 @@ def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
             audio = r.record(source)
         return r.recognize_google(audio, language=language)
     except sr.UnknownValueError:
+        return None
+    except sr.RequestError:
         return None
     finally:
         try:
@@ -142,7 +135,7 @@ def escolher_banco(nivel: str):
     return nivel_facil if nivel == "Fácil" else nivel_medio if nivel == "Médio" else nivel_dificil
 
 # =============================
-# Estado da Sessão
+# Estado da Sessão (inicialização)
 # =============================
 if "nivel" not in st.session_state:
     st.session_state.nivel = "Fácil"
@@ -171,7 +164,7 @@ if "timer_deadline" not in st.session_state:
 if "timer_active" not in st.session_state:
     st.session_state.timer_active = False
 if "ultimo_resultado" not in st.session_state:
-    st.session_state.ultimo_resultado = None  # para o botão Refazer (re-exibir feedback)
+    st.session_state.ultimo_resultado = None
 if "autorefresh_key" not in st.session_state:
     st.session_state.autorefresh_key = "timer_refresh"
 
@@ -180,26 +173,31 @@ if "autorefresh_key" not in st.session_state:
 # =============================
 col_a, col_b, col_c = st.columns([1, 1, 1], vertical_alignment="center")
 with col_a:
-    nivel = st.selectbox("Selecione o nível:", ["Fácil", "Médio", "Difícil"], index=["Fácil","Médio","Difícil"].index(st.session_state.nivel))
+    nivel = st.selectbox("Selecione o nível:", ["Fácil", "Médio", "Difícil"],
+                         index=["Fácil", "Médio", "Difícil"].index(st.session_state.nivel))
 with col_b:
-    st.session_state.goal = st.number_input("Meta (tentativas):", min_value=5, max_value=100, value=st.session_state.goal, step=5)
+    st.session_state.goal = st.number_input("Meta (tentativas):", min_value=5, max_value=100,
+                                           value=st.session_state.goal, step=5)
 with col_c:
     if st.button("🔄 Resetar sessão"):
-        for k in ["score","total","streak","best_streak","history","high_score","ultimo_resultado"]:
-            st.session_state[k] = 0 if k != "history" and k != "ultimo_resultado" else ([] if k=="history" else None)
+        st.session_state.score = 0
+        st.session_state.total = 0
+        st.session_state.streak = 0
+        st.session_state.best_streak = 0
+        st.session_state.history = []
+        st.session_state.high_score = 0
+        st.session_state.ultimo_resultado = None
         st.session_state.frase_atual = random.choice(escolher_banco(nivel))
         st.session_state.nivel = nivel
         st.session_state.timer_active = False
         st.session_state.timer_deadline = None
         st.rerun()
 
-# Troca de nível -> nova frase + ajustes de tradução/temporizador
+# Troca de nível -> nova frase + ajustes
 if nivel != st.session_state.nivel:
     st.session_state.nivel = nivel
     st.session_state.frase_atual = random.choice(escolher_banco(nivel))
-    # Médio: tradução pode ser ocultada por botão
     st.session_state.mostrar_traducao = (nivel == "Fácil")
-    # Difícil: inicia timer por frase
     st.session_state.timer_active = (nivel == "Difícil")
     st.session_state.timer_deadline = time.time() + 20 if st.session_state.timer_active else None
     st.session_state.ultimo_resultado = None
@@ -212,7 +210,8 @@ pergunta_en, resposta_en, pergunta_pt, resposta_pt = st.session_state.frase_atua
 # Progresso & Estatísticas
 # =============================
 progress = min(1.0, st.session_state.total / st.session_state.goal) if st.session_state.goal > 0 else 0.0
-st.progress(progress, text=f"Progresso: {int(progress*100)}% | Tentativas: {st.session_state.total}/{st.session_state.goal}")
+st.progress(progress)
+st.write(f"Progresso: {int(progress*100)}% | Tentativas: {st.session_state.total}/{st.session_state.goal}")
 
 stats_col1, stats_col2, stats_col3, stats_col4 = st.columns(4)
 stats_col1.metric("✅ Pontos", st.session_state.score)
@@ -222,9 +221,12 @@ stats_col4.metric("🏆 Recorde", st.session_state.high_score)
 
 # Badges simples
 badges = []
-if st.session_state.best_streak >= 3: badges.append("🔥 3 Streak")
-if st.session_state.best_streak >= 5: badges.append("⚡ 5 Streak")
-if st.session_state.score >= 10: badges.append("🎯 10 Pontos")
+if st.session_state.best_streak >= 3:
+    badges.append("🔥 3 Streak")
+if st.session_state.best_streak >= 5:
+    badges.append("⚡ 5 Streak")
+if st.session_state.score >= 10:
+    badges.append("🎯 10 Pontos")
 if badges:
     st.write("**Conquistas:** " + " | ".join(badges))
 
@@ -234,8 +236,11 @@ st.divider()
 # Exibição da frase e resposta (EN + PT conforme nível)
 # =============================
 st.subheader("Frase para treinar / Training prompt")
-st.markdown(f"**EN:** {pergunta_en}  \n*PT:* {pergunta_pt}" if st.session_state.nivel == "Fácil"
-            else f"**EN:** {pergunta_en}  \n" + (f"*PT:* {pergunta_pt}" if (st.session_state.nivel=="Médio" and st.session_state.mostrar_traducao) else "_PT oculto_"))
+if st.session_state.nivel == "Fácil":
+    st.markdown(f"**EN:** {pergunta_en}  \n*PT:* {pergunta_pt}")
+else:
+    pt_text = f"*PT:* {pergunta_pt}" if (st.session_state.nivel == "Médio" and st.session_state.mostrar_traducao) else "_PT oculto_"
+    st.markdown(f"**EN:** {pergunta_en}  \n{pt_text}")
 
 # Botão para mostrar/ocultar (apenas no nível Médio)
 if st.session_state.nivel == "Médio":
@@ -244,7 +249,7 @@ if st.session_state.nivel == "Médio":
         st.rerun()
 
 # Resposta sugerida (sempre existe EN + PT, mas PT oculto no Difícil)
-with st.expander("💡 Ver resposta sugerida / Suggested answer", expanded=(st.session_state.nivel=="Fácil")):
+with st.expander("💡 Ver resposta sugerida / Suggested answer", expanded=(st.session_state.nivel == "Fácil")):
     if st.session_state.nivel == "Difícil":
         st.markdown(f"**EN:** {resposta_en}\n\n_PT oculto no nível Difícil_")
     elif st.session_state.nivel == "Médio" and not st.session_state.mostrar_traducao:
@@ -270,15 +275,13 @@ if st.session_state.nivel == "Difícil":
         st.session_state.timer_active = True
     remaining = max(0, int(st.session_state.timer_deadline - time.time()))
     st.info(f"⏱️ Tempo restante: **{remaining}s**")
-    # Atualiza a tela para contar
+    # Atualiza a tela para contar (1s)
     st.autorefresh(interval=1000, key=st.session_state.autorefresh_key)
     if remaining == 0 and st.session_state.timer_active:
-        # Tempo esgotado -> conta como erro (uma vez)
         st.session_state.timer_active = False
         st.session_state.total += 1
         st.session_state.streak = 0
         st.warning("⏳ Tempo esgotado! Veja a resposta correta no painel acima e tente novamente.")
-        # registrar no histórico
         st.session_state.history.append({
             "timestamp": pd.Timestamp.now().strftime("%H:%M:%S"),
             "nivel": st.session_state.nivel,
@@ -297,7 +300,7 @@ st.divider()
 st.markdown("### ✍️ Responder digitando / Type your answer")
 resposta_usuario = st.text_input("Digite sua resposta em inglês / Type your answer in English:")
 
-text_cols = st.columns([1,1,1])
+text_cols = st.columns([1, 1, 1])
 with text_cols[0]:
     verificar_texto_btn = st.button("✅ Verificar (texto)")
 with text_cols[1]:
@@ -325,7 +328,6 @@ if verificar_texto_btn:
     else:
         st.error(msg)
 
-    # histórico
     st.session_state.history.append({
         "timestamp": pd.Timestamp.now().strftime("%H:%M:%S"),
         "nivel": st.session_state.nivel,
@@ -337,7 +339,6 @@ if verificar_texto_btn:
     })
     st.session_state.ultimo_resultado = (status, msg, inc, sim)
 
-    # Reinicia timer no Difícil
     if st.session_state.nivel == "Difícil":
         st.session_state.timer_deadline = time.time() + 20
         st.session_state.timer_active = True
@@ -378,7 +379,6 @@ if audio_bytes:
             else:
                 st.error(msg)
 
-            # histórico
             st.session_state.history.append({
                 "timestamp": pd.Timestamp.now().strftime("%H:%M:%S"),
                 "nivel": st.session_state.nivel,
@@ -390,7 +390,6 @@ if audio_bytes:
             })
             st.session_state.ultimo_resultado = (status, msg, inc, sim)
 
-            # Reinicia timer no Difícil
             if st.session_state.nivel == "Difícil":
                 st.session_state.timer_deadline = time.time() + 20
                 st.session_state.timer_active = True
@@ -399,24 +398,19 @@ if audio_bytes:
 # Botões Refazer / Próxima
 # =============================
 if refazer_btn:
-    # Mantém a mesma frase; zera só o resultado mostrado
     st.info("Refazendo a mesma frase. Tente novamente!")
-    # Reinicia timer no Difícil
     if st.session_state.nivel == "Difícil":
         st.session_state.timer_deadline = time.time() + 20
         st.session_state.timer_active = True
 
 if proxima_btn:
     st.session_state.frase_atual = random.choice(banco)
-    # Ajusta visibilidade de tradução
     if st.session_state.nivel == "Fácil":
         st.session_state.mostrar_traducao = True
     elif st.session_state.nivel == "Médio":
-        # mantém a preferência atual do usuário
         st.session_state.mostrar_traducao = st.session_state.mostrar_traducao
     else:
         st.session_state.mostrar_traducao = False
-    # Reinicia timer no Difícil
     if st.session_state.nivel == "Difícil":
         st.session_state.timer_deadline = time.time() + 20
         st.session_state.timer_active = True
@@ -433,13 +427,11 @@ if len(st.session_state.history) == 0:
     st.write("Sem registros ainda. Faça uma tentativa! 😉")
 else:
     df = pd.DataFrame(st.session_state.history)
-    # Pequena formatação
-    df_view = df[["timestamp","nivel","pergunta_en","sua_resposta","resposta_correta_en","resultado","similaridade"]]
+    df_view = df[["timestamp", "nivel", "pergunta_en", "sua_resposta", "resposta_correta_en", "resultado", "similaridade"]]
     st.dataframe(df_view, use_container_width=True, hide_index=True)
 
-    # Pequeno sumário
     acertos = sum(1 for h in st.session_state.history if h["resultado"] == "success")
-    erros = sum(1 for h in st.session_state.history if h["resultado"] in ("error","tempo"))
+    erros = sum(1 for h in st.session_state.history if h["resultado"] in ("error", "tempo"))
     quase = sum(1 for h in st.session_state.history if h["resultado"] == "info")
     st.write(f"**Resumo:** ✅ {acertos} | ⚠️ {quase} | ❌ {erros}")
 
