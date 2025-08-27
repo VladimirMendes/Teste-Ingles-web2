@@ -11,6 +11,7 @@ from gtts import gTTS
 import speech_recognition as sr
 from audio_recorder_streamlit import audio_recorder
 import pandas as pd
+from streamlit_webrtc import webrtc_streamer
 
 # =============================
 # Configuração da página
