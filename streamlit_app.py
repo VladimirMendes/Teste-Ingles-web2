@@ -28,49 +28,6 @@ def save_user_progress(data):
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 # =============================
-# Vocabulário organizado por tópicos
-# =============================
-vocabulario = {
-    "Saudações": [
-        {"pt": "Olá", "en": "Hello"},
-        {"pt": "Bom dia", "en": "Good morning"},
-        {"pt": "Boa noite", "en": "Good night"},
-    ],
-    "Comida": [
-        {"pt": "Maçã", "en": "Apple"},
-        {"pt": "Pão", "en": "Bread"},
-        {"pt": "Água", "en": "Water"},
-    ],
-    "Viagem": [
-        {"pt": "Aeroporto", "en": "Airport"},
-        {"pt": "Táxi", "en": "Taxi"},
-        {"pt": "Hotel", "en": "Hotel"},
-    ],
-}
-
-# =============================
-# Banco de frases por nível
-# =============================
-nivel_facil = [
-    ("Hi, how are you?", "I'm fine, thanks.", "Oi, como você está?", "Estou bem, obrigado."),
-    ("What’s your name?", "My name is John.", "Qual é o seu nome?", "Meu nome é John."),
-    ("Do you like coffee?", "Yes, I like coffee.", "Você gosta de café?", "Sim, eu gosto de café."),
-]
-
-nivel_medio = [
-    ("Where is the box?", "The box is on the table.", "Onde está a caixa?", "A caixa está na mesa."),
-    ("Can you help me?", "Yes, I can help you.", "Você pode me ajudar?", "Sim, eu posso te ajudar."),
-]
-
-nivel_dificil = [
-    ("Do we have this item in stock?", "Yes, we have it.", "Temos este item em estoque?", "Sim, temos."),
-    ("Please, sign the paper.", "Okay, I will sign.", "Por favor, assine o papel", "Ok, eu vou assinar."),
-]
-
-def escolher_banco(nivel):
-    return nivel_facil if nivel=="Fácil" else nivel_medio if nivel=="Médio" else nivel_dificil
-
-# =============================
 # Funções auxiliares
 # =============================
 def gerar_audio(texto, lang="en"):
@@ -123,6 +80,49 @@ def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
         os.remove(tmp_path)
 
 # =============================
+# Vocabulário por tópicos (inglês + tradução)
+# =============================
+vocabulario = {
+    "Saudações": [
+        {"en": "Hello", "pt": "Olá"},
+        {"en": "Good morning", "pt": "Bom dia"},
+        {"en": "Good night", "pt": "Boa noite"},
+    ],
+    "Comida": [
+        {"en": "Apple", "pt": "Maçã"},
+        {"en": "Bread", "pt": "Pão"},
+        {"en": "Water", "pt": "Água"},
+    ],
+    "Viagem": [
+        {"en": "Airport", "pt": "Aeroporto"},
+        {"en": "Taxi", "pt": "Táxi"},
+        {"en": "Hotel", "pt": "Hotel"},
+    ],
+}
+
+# =============================
+# Banco de frases por nível
+# =============================
+nivel_facil = [
+    ("Hi, how are you?", "I'm fine, thanks.", "Oi, como você está?", "Estou bem, obrigado."),
+    ("What’s your name?", "My name is John.", "Qual é o seu nome?", "Meu nome é John."),
+    ("Do you like coffee?", "Yes, I like coffee.", "Você gosta de café?", "Sim, eu gosto de café."),
+]
+
+nivel_medio = [
+    ("Where is the box?", "The box is on the table.", "Onde está a caixa?", "A caixa está na mesa."),
+    ("Can you help me?", "Yes, I can help you.", "Você pode me ajudar?", "Sim, eu posso te ajudar."),
+]
+
+nivel_dificil = [
+    ("Do we have this item in stock?", "Yes, we have it.", "Temos este item em estoque?", "Sim, temos."),
+    ("Please, sign the paper.", "Okay, I will sign.", "Por favor, assine o papel", "Ok, eu vou assinar."),
+]
+
+def escolher_banco(nivel):
+    return nivel_facil if nivel=="Fácil" else nivel_medio if nivel=="Médio" else nivel_dificil
+
+# =============================
 # Estado da sessão
 # =============================
 if "nivel" not in st.session_state: st.session_state.nivel = "Fácil"
@@ -138,65 +138,61 @@ progress = load_user_progress()
 # =============================
 # Página principal
 # =============================
-st.set_page_config(page_title="Aprenda Inglês - Estilo Duolingo", layout="centered")
+st.set_page_config(page_title="Aprenda Inglês - Com Áudio", layout="centered")
 st.title("📚 Mini Duolingo Simplificado")
 st.write("Pratique vocabulário e frases de forma divertida e personalizada!")
 
-# -----------------------------
-# Escolha do tópico de vocabulário
-# -----------------------------
+# =============================
+# Vocabulário com áudio
+# =============================
+st.subheader("📝 Vocabulário por tópicos")
 topico = st.selectbox("Escolha um tópico:", list(vocabulario.keys()))
-frases_vocab = vocabulario[topico]
-frase_vocab = random.choice(frases_vocab)
-st.subheader(f"Traduza para inglês: {frase_vocab['pt']}")
-resposta_vocab = st.text_input("Digite sua resposta em inglês:")
+for palavra in vocabulario[topico]:
+    col1, col2, col3 = st.columns([3,3,1])
+    with col1: st.write(f"**EN:** {palavra['en']}")
+    with col2: st.write(f"*PT:* {palavra['pt']}")
+    with col3:
+        if st.button(f"🔊", key=palavra['en']):
+            st.markdown(gerar_audio(palavra['en']), unsafe_allow_html=True)
 
+resposta_vocab = st.text_input("Digite a tradução em inglês de uma palavra escolhida:")
 if st.button("Verificar vocabulário"):
-    correta = frase_vocab["en"].lower()
-    if resposta_vocab.strip().lower() == correta:
-        st.success("🎉 Parabéns, você acertou!")
-        progress["acertos"][frase_vocab["pt"]] = progress["acertos"].get(frase_vocab["pt"], 0) + 1
+    encontrada = next((p for p in vocabulario[topico] if p["pt"].lower() == resposta_vocab.lower()), None)
+    if encontrada and normalizar(resposta_vocab)==normalizar(encontrada["en"]):
+        st.success("🎉 Acertou!")
+        progress["acertos"][encontrada["pt"]] = progress["acertos"].get(encontrada["pt"],0)+1
     else:
-        st.error(f"❌ Resposta incorreta. O correto é: {correta}")
-        progress["erros"][frase_vocab["pt"]] = progress["erros"].get(frase_vocab["pt"], 0) + 1
+        st.error(f"❌ Incorreto! Confira a palavra.")
+        if encontrada:
+            progress["erros"][encontrada["pt"]] = progress["erros"].get(encontrada["pt"],0)+1
     save_user_progress(progress)
 
-# -----------------------------
-# Frases por nível com áudio e texto
-# -----------------------------
-nivel = st.radio("Nível de frase:", ["Fácil", "Médio", "Difícil"], index=["Fácil","Médio","Difícil"].index(st.session_state.nivel))
+# =============================
+# Frases por nível
+# =============================
+st.divider()
+st.subheader("💬 Treino de frases")
+nivel = st.radio("Nível de frase:", ["Fácil","Médio","Difícil"], index=["Fácil","Médio","Difícil"].index(st.session_state.nivel))
 if nivel != st.session_state.nivel:
     st.session_state.nivel = nivel
     st.session_state.frase_atual = random.choice(escolher_banco(nivel))
 
 pergunta_en, resposta_en, pergunta_pt, resposta_pt = st.session_state.frase_atual
-
-st.subheader("Frase para treinar:")
-if nivel=="Fácil":
-    st.markdown(f"**EN:** {pergunta_en}\n*PT:* {pergunta_pt}")
-else:
-    st.markdown(f"**EN:** {pergunta_en}")
-    if st.checkbox("👁️ Mostrar tradução"):
-        st.markdown(f"*PT:* {pergunta_pt}")
+st.markdown(f"**EN:** {pergunta_en}\n*PT:* {pergunta_pt}")
 
 with st.expander("💡 Resposta sugerida"):
-    if nivel=="Difícil":
-        st.markdown(f"**EN:** {resposta_en}")
-    else:
-        st.markdown(f"**EN:** {resposta_en}\n*PT:* {resposta_pt}")
+    st.markdown(f"**EN:** {resposta_en}\n*PT:* {resposta_pt}")
 
-# Audio
 col1, col2 = st.columns(2)
 with col1:
-    if st.button("🔊 Ouvir pergunta (EN)"):
+    if st.button("🔊 Ouvir pergunta", key="q_audio"):
         st.markdown(gerar_audio(pergunta_en), unsafe_allow_html=True)
 with col2:
-    if st.button("🔊 Ouvir resposta (EN)"):
+    if st.button("🔊 Ouvir resposta", key="a_audio"):
         st.markdown(gerar_audio(resposta_en), unsafe_allow_html=True)
 
-# Resposta por texto
 resposta_usuario = st.text_input("Digite sua resposta em inglês para a frase:")
-if st.button("✅ Verificar resposta"):
+if st.button("✅ Verificar frase"):
     status, msg, inc, sim = verificar_texto(resposta_usuario, resposta_en)
     st.session_state.score += inc
     st.session_state.streak = st.session_state.streak+1 if inc else 0
@@ -217,7 +213,9 @@ if st.button("✅ Verificar resposta"):
     if status!="success":
         st.session_state.difficult_words[resposta_en] = st.session_state.difficult_words.get(resposta_en,0)+1
 
+# =============================
 # Resposta por áudio
+# =============================
 st.divider()
 st.markdown("### 🎙️ Responder falando")
 audio_bytes = audio_recorder(sample_rate=44100, text="🎤 Gravar / Parar")
@@ -246,7 +244,9 @@ if audio_bytes and st.button("🗣️ Transcrever e verificar"):
         if status!="success":
             st.session_state.difficult_words[resposta_en] = st.session_state.difficult_words.get(resposta_en,0)+1
 
+# =============================
 # Próxima frase
+# =============================
 if st.button("➡ Próxima"):
     if st.session_state.difficult_words and random.random()<0.3:
         alvo = random.choice(list(st.session_state.difficult_words.keys()))
@@ -256,7 +256,9 @@ if st.button("➡ Próxima"):
         st.session_state.frase_atual = random.choice(escolher_banco(nivel))
     st.rerun()
 
+# =============================
 # Histórico e progresso
+# =============================
 st.divider()
 st.subheader("📊 Histórico e progresso")
 if st.session_state.history:
@@ -272,6 +274,8 @@ if progress["erros"]:
     for palavra, erros in progress["erros"].items():
         st.write(f"- {palavra} ({erros} erros)")
 
-st.info("💡 Dica: Foque nas palavras que errou para acelerar seu aprendizado!")
-st.progress(st.session_state.score/10 if st.session_state.score>0 else 0)
+st.info("💡 Foque nas palavras que errou para acelerar seu aprendizado!")
+st.progress(min(st.session_state.score/10,1.0))
 st.write(f"✅ Pontos: {st.session_state.score} | 🔥 Streak: {st.session_state.streak}")
+
+save_user_progress(progress)
