@@ -1,8 +1,7 @@
 import streamlit as st
 import random
-import json
-import os
 import base64
+import os
 import re
 import unicodedata
 import difflib
@@ -11,6 +10,7 @@ from gtts import gTTS
 import speech_recognition as sr
 from audio_recorder_streamlit import audio_recorder
 import pandas as pd
+import json
 
 # =============================
 # Arquivo para salvar progresso
@@ -27,12 +27,7 @@ def save_user_progress(data):
     with open(USER_DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
-# =============================
-# Configuração da página
-# =============================
-st.set_page_config(page_title="Treino de Inglês - Almoxarifado", page_icon="📦", layout="centered")
-st.title("📦 English Dialogue Trainer – Almoxarifado")
-st.caption("Treine frases e vocabulário em inglês com tradução e áudio.")
+progress = load_user_progress()
 
 # =============================
 # Frases por nível
@@ -57,7 +52,7 @@ def escolher_banco(nivel):
     return nivel_facil if nivel == "Fácil" else nivel_medio if nivel == "Médio" else nivel_dificil
 
 # =============================
-# Vocabulário por tópicos
+# Vocabulário
 # =============================
 vocabulario = {
     "Saudações": [
@@ -78,7 +73,7 @@ vocabulario = {
 }
 
 # =============================
-# Funções utilitárias
+# Utilidades
 # =============================
 def gerar_audio(texto, lang="en"):
     tts = gTTS(text=texto, lang=lang)
@@ -130,7 +125,7 @@ def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
         os.remove(tmp_path)
 
 # =============================
-# Estado da sessão
+# Estado da Sessão
 # =============================
 if "nivel" not in st.session_state: st.session_state.nivel = "Fácil"
 if "frase_atual" not in st.session_state: st.session_state.frase_atual = random.choice(nivel_facil)
@@ -138,60 +133,69 @@ if "score" not in st.session_state: st.session_state.score = 0
 if "streak" not in st.session_state: st.session_state.streak = 0
 if "history" not in st.session_state: st.session_state.history = []
 if "difficult_words" not in st.session_state: st.session_state.difficult_words = {}
-if "vocab_index" not in st.session_state: st.session_state.vocab_index = 0
-if "vocab_topic" not in st.session_state: st.session_state.vocab_topic = list(vocabulario.keys())[0]
-
-user_progress = load_user_progress()
+if "voc_index" not in st.session_state: st.session_state.voc_index = 0
+if "voc_topico" not in st.session_state: st.session_state.voc_topico = list(vocabulario.keys())[0]
 
 # =============================
-# Seleção de nível e progresso
+# Configuração da Página
 # =============================
-nivel = st.radio("Nível:", ["Fácil", "Médio", "Difícil"], index=["Fácil","Médio","Difícil"].index(st.session_state.nivel))
+st.set_page_config(page_title="Treino de Inglês Completo", page_icon="📚", layout="centered")
+st.title("📚 Treino de Inglês – Frases e Vocabulário")
+st.caption("Pratique frases e vocabulário com feedback, áudio e reforço de palavras difíceis.")
+
+# =============================
+# Escolha do Nível
+# =============================
+nivel = st.radio("Escolha o nível de frases:", ["Fácil", "Médio", "Difícil"], index=["Fácil","Médio","Difícil"].index(st.session_state.nivel))
 if nivel != st.session_state.nivel:
     st.session_state.nivel = nivel
     st.session_state.frase_atual = random.choice(escolher_banco(nivel))
 
-st.progress(min(1.0, len(st.session_state.history)/10))
-st.write(f"Pontuação: {st.session_state.score} | 🔥 Streak: {st.session_state.streak}")
-
 # =============================
-# Treino de frases
+# Frases para Treino
 # =============================
-st.subheader("📌 Treino de frases")
 pergunta_en, resposta_en, pergunta_pt, resposta_pt = st.session_state.frase_atual
-st.markdown(f"**EN:** {pergunta_en}")
-if st.checkbox("👁️ Mostrar tradução"):
-    st.markdown(f"*PT:* {pergunta_pt}")
+st.subheader("💬 Frase para treinar")
+if nivel == "Fácil":
+    st.markdown(f"**EN:** {pergunta_en}\n\n*PT:* {pergunta_pt}")
+else:
+    st.markdown(f"**EN:** {pergunta_en}")
+    if st.checkbox("👁️ Mostrar tradução"):
+        st.markdown(f"*PT:* {pergunta_pt}")
 
-if st.button("🔊 Ouvir pergunta"):
+with st.expander("💡 Resposta sugerida"):
+    if nivel == "Difícil":
+        st.markdown(f"**EN:** {resposta_en}")
+    else:
+        st.markdown(f"**EN:** {resposta_en}\n\n*PT:* {resposta_pt}")
+
+if st.button("🔊 Ouvir pergunta (EN)"):
     st.markdown(gerar_audio(pergunta_en), unsafe_allow_html=True)
-if st.button("🔊 Ouvir resposta"):
-    st.markdown(gerar_audio(resposta_en), unsafe_allow_html=True)
 
+# Resposta por Texto
 resposta_usuario = st.text_input("Digite sua resposta em inglês:")
-if st.button("✅ Verificar resposta"):
+if st.button("✅ Verificar resposta (texto)"):
     status, msg, inc, sim = verificar_texto(resposta_usuario, resposta_en)
     st.session_state.score += inc
     st.session_state.streak = st.session_state.streak+1 if inc else 0
+    if status == "success": st.success(msg)
+    elif status == "info": st.info(msg)
+    elif status == "warn": st.warning(msg)
+    else: st.error(msg)
+
     st.session_state.history.append({
         "nivel": nivel,
         "pergunta": pergunta_en,
         "resposta_correta": resposta_en,
         "resposta_usuario": resposta_usuario,
         "resultado": status,
-        "similaridade": round(sim,2)
+        "similaridade": round(sim, 2)
     })
-    if status == "success": st.success(msg)
-    elif status == "info": st.info(msg)
-    elif status == "warn": st.warning(msg)
-    else: st.error(msg)
-    if status != "success":
-        st.session_state.difficult_words[resposta_en] = st.session_state.difficult_words.get(resposta_en, 0)+1
-    save_user_progress(user_progress)
 
-# =============================
-# Responder por áudio
-# =============================
+    if status != "success":
+        st.session_state.difficult_words[resposta_en] = st.session_state.difficult_words.get(resposta_en, 0) + 1
+
+# Resposta por Áudio
 st.divider()
 st.markdown("### 🎙️ Responder falando")
 audio_bytes = audio_recorder(sample_rate=44100, text="🎤 Gravar / Parar")
@@ -204,49 +208,72 @@ if audio_bytes and st.button("🗣️ Transcrever e verificar"):
         status, msg, inc, sim = verificar_texto(transcrito, resposta_en)
         st.session_state.score += inc
         st.session_state.streak = st.session_state.streak+1 if inc else 0
+        if status == "success": st.success(msg)
+        elif status == "info": st.info(msg)
+        else: st.error(msg)
+
         st.session_state.history.append({
             "nivel": nivel,
             "pergunta": pergunta_en,
             "resposta_correta": resposta_en,
             "resposta_usuario": transcrito,
             "resultado": status,
-            "similaridade": round(sim,2)
+            "similaridade": round(sim, 2)
         })
-        if status == "success": st.success(msg)
-        elif status == "info": st.info(msg)
-        else: st.error(msg)
-        if status != "success":
-            st.session_state.difficult_words[resposta_en] = st.session_state.difficult_words.get(resposta_en,0)+1
-        save_user_progress(user_progress)
 
-# =============================
+        if status != "success":
+            st.session_state.difficult_words[resposta_en] = st.session_state.difficult_words.get(resposta_en, 0) + 1
+
 # Próxima frase
-# =============================
-if st.button("➡ Próxima"):
-    if st.session_state.difficult_words and random.random()<0.3:
+if st.button("➡ Próxima frase"):
+    if st.session_state.difficult_words and random.random() < 0.3:
         alvo = random.choice(list(st.session_state.difficult_words.keys()))
         for f in escolher_banco(nivel):
-            if f[1]==alvo: st.session_state.frase_atual=f
+            if f[1] == alvo: st.session_state.frase_atual = f
     else:
-        st.session_state.frase_atual=random.choice(escolher_banco(nivel))
+        st.session_state.frase_atual = random.choice(escolher_banco(nivel))
     st.experimental_rerun()
 
 # =============================
-# Histórico e palavras difíceis
+# Vocabulário
 # =============================
 st.divider()
-st.subheader("🧾 Histórico de respostas")
+st.subheader("📚 Vocabulário")
+topico = st.selectbox("Escolha um tópico:", list(vocabulario.keys()), index=list(vocabulario.keys()).index(st.session_state.voc_topico))
+st.session_state.voc_topico = topico
+palavras = vocabulario[topico]
+
+palavra_atual = palavras[st.session_state.voc_index % len(palavras)]
+st.markdown(f"**PT:** {palavra_atual['pt']}")
+st.markdown(f"**EN:** {palavra_atual['en']}")
+st.markdown(gerar_audio(palavra_atual['en']), unsafe_allow_html=True)
+
+if st.button("➡ Próxima palavra"):
+    st.session_state.voc_index += 1
+    st.experimental_rerun()
+
+# =============================
+# Histórico e progresso
+# =============================
+st.divider()
+st.subheader("📊 Histórico e palavras difíceis")
 if st.session_state.history:
     df = pd.DataFrame(st.session_state.history)
     st.dataframe(df, use_container_width=True, hide_index=True)
 else:
     st.write("Nenhum registro ainda.")
 
-st.write("📌 Palavras difíceis:")
-if st.session_state.difficult_words:
-    for w,c in st.session_state.difficult_words.items():
-        st.write(f"- {w} (erros: {c})")
-else:
-    st.write("Nenhuma por enquanto 🚀")
+st.write("✅ Palavras dominadas:")
+for palavra, acertos in progress["acertos"].items():
+    st.write(f"- {palavra} ({acertos} acertos)")
 
-st.info("💡 Dica: Foque nas palavras que errou para acelerar seu aprendizado!")
+st.write("⚠️ Palavras que você precisa reforçar:")
+for palavra, erros in progress["erros"].items():
+    st.write(f"- {palavra} ({erros} erros)")
+
+st.success(f"Pontuação: {st.session_state.score} | 🔥 Streak: {st.session_state.streak}")
+
+# =============================
+# Salvar progresso
+# =============================
+save_user_progress(progress)
