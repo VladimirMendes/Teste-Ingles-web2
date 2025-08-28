@@ -266,10 +266,10 @@ with col1:
         st.experimental_rerun()
 with col2:
     if st.button("➡ Próxima", key="voc_prox"):
+        st.session_state.voc_index = min(len(palavras)-1, st.session_state.voc_index+1)
         st.markdown(gerar_audio(palavra_atual['en']), unsafe_allow_html=True)
 with col3:
-    if st.button("⬅ Anterior", key="voc_ant")
-        st.session_state.voc_index = min(len(palavras)-1, st.session_state.voc_index+1)
+    if st.button("⬅ Anterior", key="voc_ant"):
         st.experimental_rerun()
 # =============================
 # Histórico
