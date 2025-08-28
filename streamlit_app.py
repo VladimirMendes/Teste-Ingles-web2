@@ -243,6 +243,34 @@ if st.button("➡ Próxima", key="proxima_frase"):
         st.session_state.frase_atual = random.choice(escolher_banco(nivel))
     st.experimental_rerun()
 
+
+# =============================
+# Vocabulário interativo
+# =============================
+st.divider()
+st.markdown("## 📖 Vocabulário por tópicos")
+
+topico = st.selectbox("Escolha um tópico:", list(vocabulario.keys()), index=list(vocabulario.keys()).index(st.session_state.voc_topico), key="select_topico")
+st.session_state.voc_topico = topico
+palavras = vocabulario[topico]
+
+# Mostrar palavra atual
+palavra_atual = palavras[st.session_state.voc_index]
+st.markdown(f"**PT:** {palavra_atual['pt']}\n\n**EN:** {palavra_atual['en']}")
+
+# Botões para navegar no vocabulário
+col1, col2, col3 = st.columns([1,1,1])
+with col1:
+    if st.button("🔊 Ouvir palavra", key="voc_audio"):
+        st.session_state.voc_index = max(0, st.session_state.voc_index-1)
+        st.experimental_rerun()
+with col2:
+    if st.button("⬅ Anterior", key="voc_ant"):
+        st.markdown(gerar_audio(palavra_atual['en']), unsafe_allow_html=True)
+with col3:
+    if st.button("➡ Próxima", key="voc_prox"):
+        st.session_state.voc_index = min(len(palavras)-1, st.session_state.voc_index+1)
+        st.experimental_rerun()
 # =============================
 # Histórico
 # =============================
@@ -262,31 +290,3 @@ else:
         st.write("Nenhuma por enquanto 🚀")
 
 st.success(f"Pontuação: {st.session_state.score} | 🔥 Streak: {st.session_state.streak}")
-
-# =============================
-# Vocabulário interativo
-# =============================
-st.divider()
-st.markdown("## 📖 Vocabulário por tópicos")
-
-topico = st.selectbox("Escolha um tópico:", list(vocabulario.keys()), index=list(vocabulario.keys()).index(st.session_state.voc_topico), key="select_topico")
-st.session_state.voc_topico = topico
-palavras = vocabulario[topico]
-
-# Mostrar palavra atual
-palavra_atual = palavras[st.session_state.voc_index]
-st.markdown(f"**PT:** {palavra_atual['pt']}\n\n**EN:** {palavra_atual['en']}")
-
-# Botões para navegar no vocabulário
-col1, col2, col3 = st.columns([1,1,1])
-with col1:
-    if st.button("⬅ Anterior", key="voc_ant"):
-        st.session_state.voc_index = max(0, st.session_state.voc_index-1)
-        st.experimental_rerun()
-with col2:
-    if st.button("🔊 Ouvir palavra", key="voc_audio"):
-        st.markdown(gerar_audio(palavra_atual['en']), unsafe_allow_html=True)
-with col3:
-    if st.button("➡ Próxima", key="voc_prox"):
-        st.session_state.voc_index = min(len(palavras)-1, st.session_state.voc_index+1)
-        st.experimental_rerun()
