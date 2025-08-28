@@ -164,10 +164,9 @@ else:
             st.markdown(f"*PT:* {pergunta_pt}")
 
 with st.expander("💡 Resposta sugerida"):
-    if nivel == "Difícil":
-        st.markdown(f"**EN:** {resposta_en}")
-    else:
-        st.markdown(f"**EN:** {resposta_en}\n\n*PT:* {resposta_pt}")
+    st.markdown(f"**EN:** {resposta_en}\n\n*PT:* {resposta_pt}")
+    if st.button("🔊 Ouvir resposta (EN)", key="audio_resposta"):
+        st.markdown(gerar_audio(resposta_en), unsafe_allow_html=True)
 
 # =============================
 # Opção de áudio da pergunta
@@ -243,6 +242,25 @@ if st.button("➡ Próxima", key="proxima_frase"):
         st.session_state.frase_atual = random.choice(escolher_banco(nivel))
     st.session_state.resposta_usuario = ""  # limpa input
 
+# =============================
+# Histórico
+# =============================
+st.divider()
+st.markdown("## 🧾 Histórico de respostas")
+if not st.session_state.history:
+    st.write("Nenhum registro ainda.")
+else:
+    df = pd.DataFrame(st.session_state.history)
+    st.dataframe(df, use_container_width=True, hide_index=True)
+
+    st.write("📌 Palavras difíceis:")
+    if st.session_state.difficult_words:
+        for w, c in st.session_state.difficult_words.items():
+            st.write(f"- {w} (erros: {c})")
+    else:
+        st.write("Nenhuma por enquanto 🚀")
+
+st.success(f"Pontuação: {st.session_state.score} | 🔥 Streak: {st.session_state.streak}")
 
 # =============================
 # Vocabulário
@@ -267,23 +285,3 @@ with col1:
 with col2:
     if st.button("➡ Próxima", key="voc_prox"):
         st.session_state.voc_index = min(len(palavras)-1, st.session_state.voc_index + 1)
-
-# =============================
-# Histórico
-# =============================
-st.divider()
-st.markdown("## 🧾 Histórico de respostas")
-if not st.session_state.history:
-    st.write("Nenhum registro ainda.")
-else:
-    df = pd.DataFrame(st.session_state.history)
-    st.dataframe(df, use_container_width=True, hide_index=True)
-
-    st.write("📌 Palavras difíceis:")
-    if st.session_state.difficult_words:
-        for w, c in st.session_state.difficult_words.items():
-            st.write(f"- {w} (erros: {c})")
-    else:
-        st.write("Nenhuma por enquanto 🚀")
-
-st.success(f"Pontuação: {st.session_state.score} | 🔥 Streak: {st.session_state.streak}")
