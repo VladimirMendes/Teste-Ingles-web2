@@ -164,14 +164,15 @@ else:
         st.markdown(f"*PT:* {pergunta_pt}")
 
 with st.expander("💡 Resposta sugerida"):
-    if nivel == "Difícil":
-        st.markdown(f"**EN:** {resposta_en}")
-    else:
-        st.markdown(f"**EN:** {resposta_en}\n\n*PT:* {resposta_pt}")
+    st.markdown(f"**EN:** {resposta_en}\n\n*PT:* {resposta_pt}")
 
-if st.button("🔊 Ouvir pergunta (EN)"):
-    st.markdown(gerar_audio(pergunta_en), unsafe_allow_html=True)
-
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("🔊 Ouvir pergunta (EN)"):
+        st.markdown(gerar_audio(pergunta_en), unsafe_allow_html=True)
+with col2:
+    if st.button("🔊 Ouvir resposta correta (EN)"):
+        st.markdown(gerar_audio(resposta_en), unsafe_allow_html=True)
 # Resposta por Texto
 resposta_usuario = st.text_input("Digite sua resposta em inglês:")
 if st.button("✅ Verificar resposta (texto)"):
