@@ -1,24 +1,24 @@
 {
-  "Fácil": [
+  "nivel_facil": [
     {
       "en": "Hello! How are you?",
       "pt": "Olá! Como você está?",
-      "nivel": "Fácil"
+      "nivel": "nivel_facil"
     },
     {
       "en": "Where is the nearest bus stop?",
       "pt": "Onde fica o ponto de ônibus mais próximo?",
-      "nivel": "Fácil"
+      "nivel": "nivel_facil"
     },
     {
       "en": "I would like a cup of coffee, please.",
       "pt": "Eu gostaria de uma xícara de café, por favor.",
-      "nivel": "Iniciante"
+      "nivel": "nivel_facil"
     },
     {
       "en": "Can you help me?",
       "pt": "Você pode me ajudar?",
-      "nivel": "Fácil"
+      "nivel": "nivel_facil"
     },
     {
       "en": "What time does the train leave?",
@@ -26,58 +26,58 @@
       "nivel": "Fácil"
     }
   ],
-  "Médio": [
+  "nivel_medio": [
     {
       "en": "I have been working on this project for three weeks.",
       "pt": "Estou trabalhando neste projeto há três semanas.",
-      "nivel": "Médio"
+      "nivel": "nivel_medio"
     },
     {
       "en": "Could you please explain the main points of your presentation?",
       "pt": "Você poderia explicar os pontos principais da sua apresentação?",
-      "nivel": "Médio"
+      "nivel": "nivel_medio"
     },
     {
       "en": "She enjoys reading books in her free time.",
       "pt": "Ela gosta de ler livros no seu tempo livre.",
-      "nivel": "Médio"
+      "nivel": "nivel_medio"
     },
     {
       "en": "We need to find a solution that works for everyone.",
       "pt": "Precisamos encontrar uma solução que funcione para todos.",
-      "nivel": "Médio"
+      "nivel": "nivel_medio"
     },
     {
       "en": "I am planning to travel abroad next summer.",
       "pt": "Estou planejando viajar para o exterior no próximo verão.",
-      "nivel": "Médio"
+      "nivel": "nivel_medio"
     }
   ],
-  "Difícil": [
+  "nivel_dificil": [
     {
       "en": "Despite the challenges, the team managed to complete the project ahead of schedule.",
       "pt": "Apesar dos desafios, a equipe conseguiu concluir o projeto antes do prazo.",
-      "nivel": "Difícil"
+      "nivel": "nivel_dificil"
     },
     {
       "en": "It's essential to weigh the pros and cons before making a major decision.",
       "pt": "É essencial pesar os prós e contras antes de tomar uma decisão importante.",
-      "nivel": "Difícil"
+      "nivel": "nivel_dificil"
     },
     {
       "en": "The politician's speech was laden with idioms and persuasive rhetoric.",
       "pt": "O discurso do político estava cheio de expressões idiomáticas e retórica persuasiva.",
-      "nivel": "Difícil"
+      "nivel": "nivel_dificil"
     },
     {
       "en": "Understanding phrasal verbs is crucial for achieving fluency in English.",
       "pt": "Entender os phrasal verbs é crucial para alcançar fluência em inglês.",
-      "nivel": "Difícil"
+      "nivel": "nivel_dificil"
     },
     {
       "en": "During the debate, she skillfully countered every argument presented by her opponent.",
       "pt": "Durante o debate, ela contrapôs habilidosamente todos os argumentos apresentados pelo seu oponente.",
-      "nivel": "Difícil"
+      "nivel": "nivel_dificil"
     }
   ]
 }
