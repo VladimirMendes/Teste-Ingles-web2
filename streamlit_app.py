@@ -137,6 +137,9 @@ else:
     if nivel == "Médio":
         if st.checkbox("👁️ Mostrar tradução"):
             st.markdown(f"*PT:* {pergunta_pt}")
+    if nivel == "Difícil":
+        if st.checkbox("👁️ Mostrar tradução"):
+            st.markdown(f"*PT:* {pergunta_pt}")
 
 with st.expander("💡 Resposta sugerida"):
     st.markdown(f"**EN:** {resposta_en}\n\n*PT:* {resposta_pt}")
