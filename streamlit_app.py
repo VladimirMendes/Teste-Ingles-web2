@@ -95,7 +95,7 @@ def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
 # Estado da Sessão
 # =============================
 if "nivel" not in st.session_state: st.session_state.nivel = "Fácil"
-if "frase_atual" not in st.session_state: st.session_state.frase_atual = random.choice(escolher_banco("Fácil"))
+if "frase_atual" not in st.session_state: st.session_state.frase_atual = random.choice(escolher_banco("Fácil", "Médio", "Difícil"))
 if "score" not in st.session_state: st.session_state.score = 0
 if "streak" not in st.session_state: st.session_state.streak = 0
 if "history" not in st.session_state: st.session_state.history = []
