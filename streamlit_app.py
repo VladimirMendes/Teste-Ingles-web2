@@ -124,10 +124,10 @@ if nivel != st.session_state.nivel:
 # Exibir frase
 # =============================
 frase = st.session_state.frase_atual
-pergunta_en = frase["en"]
-pergunta_pt = frase["pt"]
-resposta_en = pergunta_en
-resposta_pt = pergunta_pt
+pergunta_en = frase["pergunta_en"]
+resposta_en = frase["resposta_en"]
+pergunta_pt = frase.get("pergunta_pt", "")
+resposta_pt = frase.get("resposta_pt", "")
 
 st.subheader("Frase para treinar:")
 if nivel == "Fácil":
