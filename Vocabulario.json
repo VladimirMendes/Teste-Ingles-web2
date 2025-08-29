@@ -12,6 +12,7 @@
     {"pt": "Água", "en": "Water"},
     {"pt": "Leite", "en": "Milk"},
     {"pt": "Café", "en": "Coffee"}
+    {"pt": "Carne", "en": "Meat"}
   ],
   "Cores": [
     {"pt": "Vermelho", "en": "Red"},
@@ -35,5 +36,63 @@
     {"pt": "Pássaro", "en": "Bird"},
     {"pt": "Peixe", "en": "Fish"},
     {"pt": "Cavalo", "en": "Horse"}
+  ],
+  "Objetos": [
+    {"pt": "Mesa", "en": "Table"},
+    {"pt": "Cadeira", "en": "Chair"},
+    {"pt": "Livro", "en": "Book"},
+    {"pt": "Celular", "en": "Phone"},
+    {"pt": "Computador", "en": "Computer"}
+  ],
+  "Transporte": [
+    {"pt": "Carro", "en": "Car"},
+    {"pt": "Ônibus", "en": "Bus"},
+    {"pt": "Trem", "en": "Train"},
+    {"pt": "Avião", "en": "Airplane"},
+    {"pt": "Bicicleta", "en": "Bicycle"},
+    {"pt": "Navio", "en": "Ship"}
+  ],
+  "Profissão": [
+    {"pt": "Professor", "en": "Teacher"},
+    {"pt": "Médico", "en": "Doctor"},
+    {"pt": "Engenheiro", "en": "Engineer"},
+    {"pt": "Advogado", "en": "Lawyer"},
+    {"pt": "Policial", "en": "Police officer"},
+    {"pt": "Motorista", "en": "Driver"}
+  ],
+  "Esportes": [
+    {"pt": "Futebol", "en": "Soccer"},
+    {"pt": "Basquete", "en": "Basketball"},
+    {"pt": "Tênis", "en": "Tennis"},
+    {"pt": "Corrida", "en": "Running"},
+    {"pt": "Natação", "en": "Swimming"}
+  ],
+  "Saúde": [
+    {"pt": "Remédio", "en": "Medicine"},
+    {"pt": "Hospital", "en": "Hospital"},
+    {"pt": "Consulta", "en": "Appointment"},
+    {"pt": "Doença", "en": "Illness"},
+    {"pt": "Cura", "en": "Cure"}
+  ],
+  "Tecnologia": [
+    {"pt": "Computador", "en": "Computer"},
+    {"pt": "Telefone", "en": "Phone"},
+    {"pt": "Internet", "en": "Internet"},
+    {"pt": "Aplicativo", "en": "App"},
+    {"pt": "Robô", "en": "Robot"}
+  ],
+  "Vida cotidiana": [
+    {"pt": "Casa", "en": "House"},
+    {"pt": "Cozinha", "en": "Kitchen"},
+    {"pt": "Banheiro", "en": "Bathroom"},
+    {"pt": "Quarto", "en": "Bedroom"},
+    {"pt": "Sala", "en": "Living room"}
+  ],
+  "Almoxarifado": [
+    {"pt": "Caixa", "en": "Box"},
+    {"pt": "Prateleira", "en": "Shelf"},
+    {"pt": "Estoque", "en": "Stock"},
+    {"pt": "Produto", "en": "Product"},
+    {"pt": "Pedido", "en": "Order"}
   ]
     }
