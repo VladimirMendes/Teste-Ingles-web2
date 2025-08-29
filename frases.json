@@ -1,1 +1,12 @@
-
+{
+  "Fácil": [
+    ["Hi, how are you?", "I'm fine, thanks.", "Oi, como você está?", "Estou bem, obrigado."],
+    ["What’s your name?", "My name is John.", "Qual é o seu nome?", "Meu nome é John."]
+  ],
+  "Médio": [
+    ["Where is the box?", "The box is on the table.", "Onde está a caixa?", "A caixa está na mesa."]
+  ],
+  "Difícil": [
+    ["Do we have this item in stock?", "Yes, we have it.", "Temos este item em estoque?", "Sim, temos."]
+  ]
+}
