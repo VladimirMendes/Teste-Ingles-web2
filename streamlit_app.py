@@ -217,8 +217,8 @@ if st.button("➡ Próxima", key="proxima_frase"):
 # =============================
 st.divider()
 st.markdown("## 📖 Vocabulário por tópicos")
-topico = st.selectbox("Escolha um tópico:", list(vocabulario.keys()), key="select_topico")
-palavras = vocabulario[topico]
+topico = st.selectbox("Escolha um tópico:", list(Vocabulario.keys()), key="select_topico")
+palavras = Vocabulario[topico]
 
 index = st.session_state.voc_index
 palavra_atual = palavras[index]
