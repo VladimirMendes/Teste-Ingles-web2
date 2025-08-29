@@ -1,68 +1,23 @@
 {
   "Fácil": [
-    {
-      "en": "Hello! How are you?",
-      "pt": "Olá! Como você está?",
-    },
-    {
-      "en": "Where is the nearest bus stop?",
-      "pt": "Onde fica o ponto de ônibus mais próximo?",
-    },
-    {
-      "en": "I would like a cup of coffee, please.",
-      "pt": "Eu gostaria de uma xícara de café, por favor.",
-    },
-    {
-      "en": "Can you help me?",
-      "pt": "Você pode me ajudar?",
-    },
-    {
-      "en": "What time does the train leave?",
-      "pt": "A que horas sai o trem?",
-    }
+    {"en": "Hi, how are you?", "pt": "Oi, como você está?"},
+    {"en": "What is your name?", "pt": "Qual é o seu nome?"},
+    {"en": "I like apples.", "pt": "Eu gosto de maçãs."},
+    {"en": "Where is the bus?", "pt": "Onde está o ônibus?"},
+    {"en": "I am tired.", "pt": "Eu estou cansado."}
   ],
   "Médio": [
-    {
-      "en": "I have been working on this project for three weeks.",
-      "pt": "Estou trabalhando neste projeto há três semanas.",
-    },
-    {
-      "en": "Could you please explain the main points of your presentation?",
-      "pt": "Você poderia explicar os pontos principais da sua apresentação?",
-    },
-    {
-      "en": "She enjoys reading books in her free time.",
-      "pt": "Ela gosta de ler livros no seu tempo livre.",
-    },
-    {
-      "en": "We need to find a solution that works for everyone.",
-      "pt": "Precisamos encontrar uma solução que funcione para todos.",
-    },
-    {
-      "en": "I am planning to travel abroad next summer.",
-      "pt": "Estou planejando viajar para o exterior no próximo verão.",
-    }
+    {"en": "Can you help me with this task?", "pt": "Você pode me ajudar com esta tarefa?"},
+    {"en": "I have been working here for two years.", "pt": "Eu trabalho aqui há dois anos."},
+    {"en": "Please, call me when you arrive.", "pt": "Por favor, me ligue quando chegar."},
+    {"en": "She is studying English at the university.", "pt": "Ela está estudando inglês na universidade."},
+    {"en": "We need to finish this project by Friday.", "pt": "Precisamos terminar este projeto até sexta-feira."}
   ],
   "Difícil": [
-    {
-      "en": "Despite the challenges, the team managed to complete the project ahead of schedule.",
-      "pt": "Apesar dos desafios, a equipe conseguiu concluir o projeto antes do prazo.",
-    },
-    {
-      "en": "It's essential to weigh the pros and cons before making a major decision.",
-      "pt": "É essencial pesar os prós e contras antes de tomar uma decisão importante.",
-    },
-    {
-      "en": "The politician's speech was laden with idioms and persuasive rhetoric.",
-      "pt": "O discurso do político estava cheio de expressões idiomáticas e retórica persuasiva.",
-    },
-    {
-      "en": "Understanding phrasal verbs is crucial for achieving fluency in English.",
-      "pt": "Entender os phrasal verbs é crucial para alcançar fluência em inglês.",
-    },
-    {
-      "en": "During the debate, she skillfully countered every argument presented by her opponent.",
-      "pt": "Durante o debate, ela contrapôs habilidosamente todos os argumentos apresentados pelo seu oponente.",
-    }
+    {"en": "Despite the heavy rain, the event continued as planned.", "pt": "Apesar da forte chuva, o evento continuou conforme o planejado."},
+    {"en": "He decided to take the plunge and start his own business.", "pt": "Ele decidiu se arriscar e abrir seu próprio negócio."},
+    {"en": "The company is facing unprecedented challenges due to global competition.", "pt": "A empresa está enfrentando desafios sem precedentes devido à competição global."},
+    {"en": "She explained the concept with remarkable clarity, leaving no doubts.", "pt": "Ela explicou o conceito com clareza notável, sem deixar dúvidas."},
+    {"en": "Negotiating a fair deal requires patience, strategy, and good communication.", "pt": "Negociar um acordo justo requer paciência, estratégia e boa comunicação."}
   ]
 }
