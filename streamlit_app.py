@@ -28,47 +28,16 @@ def save_user_progress(data):
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 # =============================
-# Banco de frases por nível
+# Carregar frases e vocabulário de arquivos JSON externos
 # =============================
-nivel_facil = [
-    ("Hi, how are you?", "I'm fine, thanks.", "Oi, como você está?", "Estou bem, obrigado."),
-    ("What’s your name?", "My name is John.", "Qual é o seu nome?", "Meu nome é John."),
-    ("Do you like coffee?", "Yes, I like coffee.", "Você gosta de café?", "Sim, eu gosto de café."),
-]
+with open("frases.json", "r", encoding="utf-8") as f:
+    frases_por_nivel = json.load(f)
 
-nivel_medio = [
-    ("Where is the box?", "The box is on the table.", "Onde está a caixa?", "A caixa está na mesa."),
-    ("Can you help me?", "Yes, I can help you.", "Você pode me ajudar?", "Sim, eu posso te ajudar."),
-]
-
-nivel_dificil = [
-    ("Do we have this item in stock?", "Yes, we have it.", "Temos este item em estoque?", "Sim, temos."),
-    ("Please, sign the paper.", "Okay, I will sign.", "Por favor, assine o papel", "Ok, eu vou assinar."),
-]
+with open("vocabulario.json", "r", encoding="utf-8") as f:
+    vocabulario = json.load(f)
 
 def escolher_banco(nivel):
-    return nivel_facil if nivel == "Fácil" else nivel_medio if nivel == "Médio" else nivel_dificil
-
-# =============================
-# Vocabulário por tópicos
-# =============================
-vocabulario = {
-    "Saudações": [
-        {"pt": "Olá", "en": "Hello"},
-        {"pt": "Bom dia", "en": "Good morning"},
-        {"pt": "Boa noite", "en": "Good night"},
-    ],
-    "Comida": [
-        {"pt": "Maçã", "en": "Apple"},
-        {"pt": "Pão", "en": "Bread"},
-        {"pt": "Água", "en": "Water"},
-    ],
-    "Viagem": [
-        {"pt": "Aeroporto", "en": "Airport"},
-        {"pt": "Táxi", "en": "Taxi"},
-        {"pt": "Hotel", "en": "Hotel"},
-    ],
-}
+    return frases_por_nivel.get(nivel, [])
 
 # =============================
 # Funções utilitárias
@@ -126,12 +95,13 @@ def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
 # Estado da Sessão
 # =============================
 if "nivel" not in st.session_state: st.session_state.nivel = "Fácil"
-if "frase_atual" not in st.session_state: st.session_state.frase_atual = random.choice(nivel_facil)
+if "frase_atual" not in st.session_state: st.session_state.frase_atual = random.choice(escolher_banco("Fácil"))
 if "score" not in st.session_state: st.session_state.score = 0
 if "streak" not in st.session_state: st.session_state.streak = 0
 if "history" not in st.session_state: st.session_state.history = []
 if "difficult_words" not in st.session_state: st.session_state.difficult_words = {}
 if "voc_index" not in st.session_state: st.session_state.voc_index = 0
+if "resposta_usuario" not in st.session_state: st.session_state.resposta_usuario = ""
 
 progress = load_user_progress()
 
@@ -177,7 +147,7 @@ if st.button("🔊 Ouvir pergunta (EN)", key="audio_pergunta"):
 # =============================
 # Responder por texto
 # =============================
-resposta_usuario = st.text_input("Digite sua resposta em inglês:", key="resposta_texto")
+resposta_usuario = st.text_input("Digite sua resposta em inglês:", value=st.session_state.resposta_usuario, key="resposta_texto")
 if st.button("✅ Verificar resposta (texto)", key="verificar_texto"):
     status, msg, inc, sim = verificar_texto(resposta_usuario, resposta_en)
     st.session_state.score += inc
@@ -235,13 +205,12 @@ if st.button("➡ Próxima", key="proxima_frase"):
     if st.session_state.difficult_words and random.random() < 0.3:
         alvo = random.choice(list(st.session_state.difficult_words.keys()))
         for f in escolher_banco(nivel):
-            if f[1] == alvo: 
+            if f[1] == alvo:
                 st.session_state.frase_atual = f
                 break
     else:
         st.session_state.frase_atual = random.choice(escolher_banco(nivel))
     st.session_state.resposta_usuario = ""  # limpa input
-
 
 # =============================
 # Vocabulário
@@ -251,8 +220,6 @@ st.markdown("## 📖 Vocabulário por tópicos")
 topico = st.selectbox("Escolha um tópico:", list(vocabulario.keys()), key="select_topico")
 palavras = vocabulario[topico]
 
-# Navegar pelo vocabulário
-if "voc_index" not in st.session_state: st.session_state.voc_index = 0
 index = st.session_state.voc_index
 palavra_atual = palavras[index]
 st.markdown(f"PT: {palavra_atual['pt']}\nEN: {palavra_atual['en']}")
@@ -266,6 +233,7 @@ with col1:
 with col2:
     if st.button("➡ Próxima", key="voc_prox"):
         st.session_state.voc_index = min(len(palavras)-1, st.session_state.voc_index + 1)
+
 # =============================
 # Histórico
 # =============================
