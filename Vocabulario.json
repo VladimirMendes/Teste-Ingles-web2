@@ -7,4 +7,132 @@
     {"pt": "Maçã", "en": "Apple"},
     {"pt": "Pão", "en": "Bread"}
   ]
+  "Viagem ✈️": [
+    {
+      "palavra": "Airport",
+      "traducao": "Aeroporto",
+      "frase_exemplo": "We arrived at the airport two hours before the flight.",
+      "traducao_frase": "Nós chegamos ao aeroporto duas horas antes do voo.",
+      "topico": "Viagem ✈️"
+    },
+    {
+      "palavra": "Luggage",
+      "traducao": "Bagagem",
+      "frase_exemplo": "She packed her luggage carefully before the trip.",
+      "traducao_frase": "Ela arrumou sua bagagem com cuidado antes da viagem.",
+      "topico": "Viagem ✈️"
+    }
+  ],
+  "Negócios 💼": [
+    {
+      "palavra": "Meeting",
+      "traducao": "Reunião",
+      "frase_exemplo": "The meeting will start at 9 a.m.",
+      "traducao_frase": "A reunião começará às 9 da manhã.",
+      "topico": "Negócios 💼"
+    },
+    {
+      "palavra": "Deadline",
+      "traducao": "Prazo final",
+      "frase_exemplo": "We must finish the project before the deadline.",
+      "traducao_frase": "Devemos terminar o projeto antes do prazo final.",
+      "topico": "Negócios 💼"
+    }
+  ],
+  "Comida 🍔": [
+    {
+      "palavra": "Breakfast",
+      "traducao": "Café da manhã",
+      "frase_exemplo": "I usually eat eggs for breakfast.",
+      "traducao_frase": "Eu geralmente como ovos no café da manhã.",
+      "topico": "Comida 🍔"
+    },
+    {
+      "palavra": "Delicious",
+      "traducao": "Delicioso",
+      "frase_exemplo": "This pizza is really delicious!",
+      "traducao_frase": "Essa pizza está realmente deliciosa!",
+      "topico": "Comida 🍔"
+    }
+  ],
+  "Saúde 🏥": [
+    {
+      "palavra": "Doctor",
+      "traducao": "Médico",
+      "frase_exemplo": "I need to see a doctor today.",
+      "traducao_frase": "Eu preciso ver um médico hoje.",
+      "topico": "Saúde 🏥"
+    },
+    {
+      "palavra": "Medicine",
+      "traducao": "Remédio",
+      "frase_exemplo": "She takes her medicine every morning.",
+      "traducao_frase": "Ela toma seu remédio todas as manhãs.",
+      "topico": "Saúde 🏥"
+    }
+  ],
+  "Tecnologia 💻": [
+    {
+      "palavra": "Computer",
+      "traducao": "Computador",
+      "frase_exemplo": "My computer is very fast.",
+      "traducao_frase": "Meu computador é muito rápido.",
+      "topico": "Tecnologia 💻"
+    },
+    {
+      "palavra": "Software",
+      "traducao": "Programa",
+      "frase_exemplo": "This software helps with photo editing.",
+      "traducao_frase": "Este programa ajuda na edição de fotos.",
+      "topico": "Tecnologia 💻"
+    }
+  ],
+  "Esportes ⚽": [
+    {
+      "palavra": "Soccer",
+      "traducao": "Futebol",
+      "frase_exemplo": "He plays soccer every weekend.",
+      "traducao_frase": "Ele joga futebol todo fim de semana.",
+      "topico": "Esportes ⚽"
+    },
+    {
+      "palavra": "Team",
+      "traducao": "Time",
+      "frase_exemplo": "Our team won the match.",
+      "traducao_frase": "Nosso time venceu a partida.",
+      "topico": "Esportes ⚽"
+    }
+  ],
+  "Vida cotidiana 🏠": [
+    {
+      "palavra": "House",
+      "traducao": "Casa",
+      "frase_exemplo": "Their house is very comfortable.",
+      "traducao_frase": "A casa deles é muito confortável.",
+      "topico": "Vida cotidiana 🏠"
+    },
+    {
+      "palavra": "Work",
+      "traducao": "Trabalho",
+      "frase_exemplo": "I go to work by bus.",
+      "traducao_frase": "Eu vou para o trabalho de ônibus.",
+      "topico": "Vida cotidiana 🏠"
+    }
+  ],
+  "Almoxarifado": [
+    {
+      "palavra": "Storage",
+      "traducao": "Armazenamento",
+      "frase_exemplo": "The boxes are in the storage room.",
+      "traducao_frase": "As caixas estão na sala de armazenamento.",
+      "topico": "Almoxarifado"
+    },
+    {
+      "palavra": "Supplies",
+      "traducao": "Materiais",
+      "frase_exemplo": "We need more office supplies.",
+      "traducao_frase": "Nós precisamos de mais materiais de escritório.",
+      "topico": "Almoxarifado"
+    }
+  ]
 }
