@@ -33,7 +33,7 @@ def save_user_progress(data):
 with open("frases.json", "r", encoding="utf-8") as f:
     frases_por_nivel = json.load(f)
 
-with open("vocabulario.json", "r", encoding="utf-8") as f:
+with open("Vocabulario.json", "r", encoding="utf-8") as f:
     Vocabulário = json.load(f)
 
 def escolher_banco(nivel):
