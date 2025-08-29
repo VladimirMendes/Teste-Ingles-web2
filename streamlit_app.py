@@ -34,7 +34,7 @@ with open("frases.json", "r", encoding="utf-8") as f:
     frases_por_nivel = json.load(f)
 
 with open("Vocabulario.json", "r", encoding="utf-8") as f:
-    Vocabulário = json.load(f)
+    Vocabulario = json.load(f)
 
 def escolher_banco(nivel):
     return frases_por_nivel.get(nivel, [])
