@@ -28,7 +28,7 @@ def save_user_progress(data):
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 # =============================
-# Carregar frases e vocabulário
+# Carregar frases e vocabulário de arquivos JSON externos
 # =============================
 with open("frases.json", "r", encoding="utf-8") as f:
     frases_por_nivel = json.load(f)
@@ -95,8 +95,7 @@ def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
 # Estado da Sessão
 # =============================
 if "nivel" not in st.session_state: st.session_state.nivel = "Fácil"
-if "frase_atual" not in st.session_state: 
-    st.session_state.frase_atual = random.choice(escolher_banco("Fácil"))
+if "frase_atual" not in st.session_state: st.session_state.frase_atual = random.choice(escolher_banco("Fácil"))
 if "score" not in st.session_state: st.session_state.score = 0
 if "streak" not in st.session_state: st.session_state.streak = 0
 if "history" not in st.session_state: st.session_state.history = []
@@ -109,9 +108,9 @@ progress = load_user_progress()
 # =============================
 # Configuração da página
 # =============================
-st.set_page_config(page_title="Treino de Inglês - Diálogos", page_icon="🗣️", layout="centered")
-st.title("🗣️ English Dialogue Trainer")
-st.caption("Treine frases em inglês no formato de perguntas e respostas.")
+st.set_page_config(page_title="Treino de Inglês - Almoxarifado", page_icon="📦", layout="centered")
+st.title("📦 English Dialogue Trainer – Almoxarifado")
+st.caption("Perguntas e respostas aparecem em **inglês** com **tradução em português** (dependendo do nível).")
 
 # =============================
 # Escolha do nível
@@ -124,12 +123,7 @@ if nivel != st.session_state.nivel:
 # =============================
 # Exibir frase
 # =============================
-frase = st.session_state.frase_atual
-pergunta_en = frase["pergunta_en"]
-resposta_en = frase["resposta_en"]
-pergunta_pt = frase["pergunta_pt"]
-resposta_pt = frase["resposta_pt"]
-
+pergunta_en, resposta_en, pergunta_pt, resposta_pt = st.session_state.frase_atual
 st.subheader("Frase para treinar:")
 if nivel == "Fácil":
     st.markdown(f"**EN:** {pergunta_en}\n\n*PT:* {pergunta_pt}")
@@ -211,7 +205,7 @@ if st.button("➡ Próxima", key="proxima_frase"):
     if st.session_state.difficult_words and random.random() < 0.3:
         alvo = random.choice(list(st.session_state.difficult_words.keys()))
         for f in escolher_banco(nivel):
-            if f["resposta_en"] == alvo:
+            if f[1] == alvo:
                 st.session_state.frase_atual = f
                 break
     else:
