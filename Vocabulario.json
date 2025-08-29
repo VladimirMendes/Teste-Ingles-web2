@@ -1,58 +1,39 @@
 {
   "Saudações": [
     {"pt": "Olá", "en": "Hello"},
-    {"pt": "Bom dia", "en": "Good morning"}
-  ],
-  "Comida": [
-    {"pt": "Maçã", "en": "Apple"},
-    {"pt": "Pão", "en": "Bread"}
-  ]
-  "Viagem": [
-    {"pt": "Aeroporto", "en": "Airport"},
-    {"pt": "Passaporte", "en": "Passport"},
-    {"pt": "Eu preciso de um táxi", "en": "I need a taxi"},
-    {"pt": "Onde fica o hotel?", "en": "Where is the hotel?"}
-  ],
-  "Negócios": [
-    {"pt": "Reunião", "en": "Meeting"},
-    {"pt": "Contrato", "en": "Contract"},
-    {"pt": "Eu trabalho em uma empresa de tecnologia", "en": "I work in a technology company"},
-    {"pt": "Podemos marcar uma reunião?", "en": "Can we schedule a meeting?"}
+    {"pt": "Bom dia", "en": "Good morning"},
+    {"pt": "Boa tarde", "en": "Good afternoon"},
+    {"pt": "Boa noite", "en": "Good evening"},
+    {"pt": "Tchau", "en": "Goodbye"}
   ],
   "Comida": [
     {"pt": "Maçã", "en": "Apple"},
     {"pt": "Pão", "en": "Bread"},
-    {"pt": "Eu gostaria de um café", "en": "I would like a coffee"},
-    {"pt": "O jantar estava delicioso", "en": "The dinner was delicious"}
+    {"pt": "Água", "en": "Water"},
+    {"pt": "Leite", "en": "Milk"},
+    {"pt": "Café", "en": "Coffee"}
   ],
-  "Saúde": [
-    {"pt": "Hospital", "en": "Hospital"},
-    {"pt": "Médico", "en": "Doctor"},
-    {"pt": "Eu não estou me sentindo bem", "en": "I am not feeling well"},
-    {"pt": "Preciso de um remédio", "en": "I need medicine"}
+  "Cores": [
+    {"pt": "Vermelho", "en": "Red"},
+    {"pt": "Azul", "en": "Blue"},
+    {"pt": "Verde", "en": "Green"},
+    {"pt": "Amarelo", "en": "Yellow"},
+    {"pt": "Preto", "en": "Black"},
+    {"pt": "Branco", "en": "White"}
   ],
-  "Tecnologia": [
-    {"pt": "Computador", "en": "Computer"},
-    {"pt": "Internet", "en": "Internet"},
-    {"pt": "Meu celular está sem bateria", "en": "My phone is out of battery"},
-    {"pt": "Eu gosto de aprender programação", "en": "I like learning programming"}
+  "Números": [
+    {"pt": "Um", "en": "One"},
+    {"pt": "Dois", "en": "Two"},
+    {"pt": "Três", "en": "Three"},
+    {"pt": "Quatro", "en": "Four"},
+    {"pt": "Cinco", "en": "Five"},
+    {"pt": "Dez", "en": "Ten"}
   ],
-  "Esportes": [
-    {"pt": "Futebol", "en": "Soccer"},
-    {"pt": "Basquete", "en": "Basketball"},
-    {"pt": "Ele joga futebol todos os dias", "en": "He plays soccer every day"},
-    {"pt": "Nós assistimos ao jogo ontem", "en": "We watched the game yesterday"}
-  ],
-  "Vida cotidiana": [
-    {"pt": "Casa", "en": "House"},
-    {"pt": "Trabalho", "en": "Work"},
-    {"pt": "Eu estou indo para casa", "en": "I am going home"},
-    {"pt": "Ela está no trabalho agora", "en": "She is at work now"}
-  ],
-  "Almoxarifado": [
-    {"pt": "Caixa", "en": "Box"},
-    {"pt": "Estoques", "en": "Stocks"},
-    {"pt": "A chave está no almoxarifado", "en": "The key is in the storage room"},
-    {"pt": "Precisamos organizar o estoque", "en": "We need to organize the stock"}
+  "Animais": [
+    {"pt": "Cachorro", "en": "Dog"},
+    {"pt": "Gato", "en": "Cat"},
+    {"pt": "Pássaro", "en": "Bird"},
+    {"pt": "Peixe", "en": "Fish"},
+    {"pt": "Cavalo", "en": "Horse"}
   ]
-}
+    }
