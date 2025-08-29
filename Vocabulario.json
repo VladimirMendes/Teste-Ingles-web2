@@ -1,0 +1,10 @@
+{
+  "Saudações": [
+    {"pt": "Olá", "en": "Hello"},
+    {"pt": "Bom dia", "en": "Good morning"}
+  ],
+  "Comida": [
+    {"pt": "Maçã", "en": "Apple"},
+    {"pt": "Pão", "en": "Bread"}
+  ]
+}
