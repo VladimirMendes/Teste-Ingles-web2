@@ -364,31 +364,51 @@ ACHIEVEMENTS = {
     "audio_master": {"name": "Voice Master", "desc": "Use audio 10 times", "icon": "🎙️"},
 }
 
+
 def load_user_progress():
     if os.path.exists(USER_DATA_FILE):
-        with open(USER_DATA_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            # Ensure all premium fields exist
-            data.setdefault("xp", 0)
-            data.setdefault("level", 1)
-            data.setdefault("achievements", [])
-            data.setdefault("streak", 0)
-            data.setdefault("last_active", datetime.now().isoformat())
-            data.setdefault("total_exercises", 0)
-            data.setdefault("audio_used", 0)
-            data.setdefault("vocab_seen", set())
-            return data
+        try:
+            with open(USER_DATA_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            data = {}
+        
+        # Ensure all premium fields exist with proper types
+        data.setdefault("acertos", {})
+        data.setdefault("erros", {})
+        data.setdefault("xp", 0)
+        data.setdefault("level", 1)
+        data.setdefault("achievements", [])
+        data.setdefault("streak", 0)
+        data.setdefault("last_active", datetime.now().isoformat())
+        data.setdefault("total_exercises", 0)
+        data.setdefault("audio_used", 0)
+        # BUG FIX: store vocab_seen as list (JSON-compatible) instead of set
+        if "vocab_seen" not in data:
+            data["vocab_seen"] = []
+        elif isinstance(data["vocab_seen"], set):
+            data["vocab_seen"] = list(data["vocab_seen"])
+        return data
+    
     return {
         "acertos": {}, "erros": {},
         "xp": 0, "level": 1, "achievements": [],
         "streak": 0, "last_active": datetime.now().isoformat(),
-        "total_exercises": 0, "audio_used": 0, "vocab_seen": set()
+        "total_exercises": 0, "audio_used": 0, "vocab_seen": []
     }
+
 
 def save_user_progress(data):
     data["last_active"] = datetime.now().isoformat()
-    with open(USER_DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4, ensure_ascii=False)
+    # Ensure vocab_seen is always a list before saving
+    if isinstance(data.get("vocab_seen"), set):
+        data["vocab_seen"] = list(data["vocab_seen"])
+    try:
+        with open(USER_DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    except IOError as e:
+        st.error(f"Erro ao salvar progresso: {e}")
+
 
 def get_level_info(xp):
     current_level = 1
@@ -402,6 +422,7 @@ def get_level_info(xp):
     progress = (xp - xp_current) / (xp_for_next - xp_current) if xp_for_next > xp_current else 1.0
     return current_level, next_level, xp_current, xp_for_next, progress
 
+
 def check_achievements(progress, session_state):
     new_achievements = []
     total_correct = sum(progress["acertos"].values())
@@ -412,8 +433,11 @@ def check_achievements(progress, session_state):
         new_achievements.append("perfect_streak_5")
     if session_state.get("streak", 0) >= 10 and "perfect_streak_10" not in progress["achievements"]:
         new_achievements.append("perfect_streak_10")
-    if len(progress.get("vocab_seen", set())) >= 50 and "vocab_50" not in progress["achievements"]:
+    vocab_seen_count = len(progress.get("vocab_seen", []))
+    if vocab_seen_count >= 50 and "vocab_50" not in progress["achievements"]:
         new_achievements.append("vocab_50")
+    if vocab_seen_count >= 100 and "vocab_100" not in progress["achievements"]:
+        new_achievements.append("vocab_100")
     if progress.get("audio_used", 0) >= 10 and "audio_master" not in progress["achievements"]:
         new_achievements.append("audio_master")
 
@@ -421,6 +445,7 @@ def check_achievements(progress, session_state):
         progress["achievements"].append(ach)
 
     return new_achievements
+
 
 # ============================================
 # SAMPLE DATA (for demo purposes)
@@ -499,13 +524,18 @@ SAMPLE_VOCAB = {
 # ============================================
 
 def gerar_audio(texto, lang="en"):
-    tts = gTTS(text=texto, lang=lang)
-    filename = f"audio_{hash(texto)}.mp3"
-    tts.save(filename)
-    with open(filename, "rb") as f:
-        b64 = base64.b64encode(f.read()).decode()
-    os.remove(filename)
-    return f'<audio controls src="data:audio/mp3;base64,{b64}" style="width:100%;border-radius:8px;"></audio>'
+    """Generate audio with error handling for network issues"""
+    try:
+        tts = gTTS(text=texto, lang=lang)
+        filename = f"audio_{hash(texto)}.mp3"
+        tts.save(filename)
+        with open(filename, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+        os.remove(filename)
+        return f'<audio controls src="data:audio/mp3;base64,{b64}" style="width:100%;border-radius:8px;"></audio>'
+    except Exception as e:
+        return f'<div style="color:#f87171;padding:12px;border:1px solid rgba(239,68,68,0.4);border-radius:8px;">🔇 Erro ao gerar áudio: verifique sua conexão.</div>'
+
 
 def normalizar(txt: str) -> str:
     txt = txt.strip().lower()
@@ -513,8 +543,10 @@ def normalizar(txt: str) -> str:
     txt = re.sub(r"[^a-z0-9']+", " ", txt)
     return " ".join(txt.split())
 
+
 def similaridade(a: str, b: str) -> float:
     return difflib.SequenceMatcher(None, normalizar(a), normalizar(b)).ratio()
+
 
 def classificar_erro(user: str, correct: str) -> str:
     sim = similaridade(user, correct)
@@ -523,15 +555,17 @@ def classificar_erro(user: str, correct: str) -> str:
     if sim >= 0.6: return f"Erro moderado ({sim*100:.0f}%)"
     return f"Muito diferente ({sim*100:.0f}%)"
 
+
 def verificar_texto(resposta_usuario: str, resposta_correta: str):
     if not resposta_usuario.strip():
         return ("warn", "Digite algo ou use o microfone.", 0, 0.0)
     if normalizar(resposta_usuario) == normalizar(resposta_correta):
-        return ("success", "✅ Correto! Excelente trabalho!", 1, 1.0)
+        return ("success", "Correto! Excelente trabalho!", 1, 1.0)
     sim = similaridade(resposta_usuario, resposta_correta)
     if sim >= 0.75:
         return ("info", classificar_erro(resposta_usuario, resposta_correta), 0, sim)
     return ("error", classificar_erro(resposta_usuario, resposta_correta), 0, sim)
+
 
 def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
     r = sr.Recognizer()
@@ -547,7 +581,11 @@ def transcrever_wav_bytes(wav_bytes: bytes, language="en-US") -> str | None:
     except sr.RequestError:
         return None
     finally:
-        os.remove(tmp_path)
+        try:
+            os.remove(tmp_path)
+        except OSError:
+            pass
+
 
 # ============================================
 # PREMIUM UI COMPONENTS
@@ -558,7 +596,7 @@ def render_header():
     st.markdown("""
     <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px;">
         <div style="width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
-                    display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px16px rgba(99,102,241,0.4);">
+                    display:flex;align-items:center;justify-content:center;font-size:28px;box-shadow:0 4px 16px rgba(99,102,241,0.4);">
             📦
         </div>
         <div>
@@ -567,6 +605,7 @@ def render_header():
         </div>
     </div>
     """, unsafe_allow_html=True)
+
 
 def render_stats_bar(progress, session_state):
     """Render premium stats bar with XP, level, streak"""
@@ -621,34 +660,39 @@ def render_stats_bar(progress, session_state):
         </div>
         """, unsafe_allow_html=True)
 
+
 def render_difficulty_selector(current_level):
-    """Render premium difficulty selector"""
+    """Render premium difficulty selector using selectbox for reliability"""
     st.markdown("<div class='premium-heading'>🎯 Nível de Dificuldade</div>", unsafe_allow_html=True)
-
-    cols = st.columns(3)
-    difficulties = [
-        ("Fácil", "🌱", "Iniciante", "difficulty-easy"),
-        ("Médio", "📋", "Intermediário", "difficulty-medium"),
-        ("Difícil", "💼", "Avançado", "difficulty-hard")
-    ]
-
-    for i, (name, icon, desc, css_class) in enumerate(difficulties):
-        with cols[i]:
-            active = "active" if current_level == name else ""
+    
+    difficulties = ["Fácil", "Médio", "Difícil"]
+    
+    col1, col2, col3 = st.columns(3)
+    diff_cols = [col1, col2, col3]
+    diff_icons = {"Fácil": "🌱", "Médio": "📋", "Difícil": "💼"}
+    diff_desc = {"Fácil": "Iniciante", "Médio": "Intermediário", "Difícil": "Avançado"}
+    
+    # Display difficulty cards
+    for i, diff in enumerate(difficulties):
+        with diff_cols[i]:
+            is_active = current_level == diff
+            border_color = "rgba(99, 102, 241, 0.6)" if is_active else "rgba(99, 102, 241, 0.2)"
+            bg_color = "rgba(99, 102, 241, 0.15)" if is_active else "rgba(30, 41, 59, 0.5)"
             st.markdown(f"""
-            <div class="difficulty-option {css_class} {active}" style="text-align:center;cursor:pointer;"
-                 onclick="window.parent.document.querySelector('input[value=\"{name}\"]').click()">
-                <div style="font-size:2rem;margin-bottom:8px;">{icon}</div>
-                <div style="font-weight:700;">{name}</div>
-                <div style="font-size:0.875rem;opacity:0.7;">{desc}</div>
+            <div style="background:{bg_color};border:1px solid {border_color};border-radius:12px;
+                        padding:16px;text-align:center;transition:all 0.3s ease;">
+                <div style="font-size:2rem;margin-bottom:8px;">{diff_icons[diff]}</div>
+                <div style="font-weight:700;color:#f8fafc;">{diff}</div>
+                <div style="font-size:0.875rem;color:#94a3b8;">{diff_desc[diff]}</div>
             </div>
             """, unsafe_allow_html=True)
-
-    # Hidden radio for actual selection
-    nivel = st.radio("", ["Fácil", "Médio", "Difícil"], 
-                     index=["Fácil", "Médio", "Difícil"].index(current_level),
-                     label_visibility="collapsed", key="difficulty_radio")
+    
+    nivel = st.radio("", difficulties, 
+                     index=difficulties.index(current_level),
+                     label_visibility="collapsed", key="difficulty_radio",
+                     horizontal=True)
     return nivel
+
 
 def render_phrase_card(frase, nivel):
     """Render premium phrase training card"""
@@ -714,6 +758,7 @@ def render_phrase_card(frase, nivel):
 
     return pergunta_en, resposta_en, resposta_pt
 
+
 def render_text_input_section(resposta_en):
     """Render premium text input with verification"""
     st.markdown("<div class='premium-divider'></div>", unsafe_allow_html=True)
@@ -733,6 +778,7 @@ def render_text_input_section(resposta_en):
                                   use_container_width=True)
 
     return resposta_usuario, verify_clicked, skip_clicked
+
 
 def render_feedback(status, msg, sim):
     """Render premium feedback messages"""
@@ -775,6 +821,7 @@ def render_feedback(status, msg, sim):
     elif status == "warn":
         st.warning(msg)
 
+
 def render_audio_section(resposta_en):
     """Render premium audio recording section"""
     st.markdown("<div class='premium-divider'></div>", unsafe_allow_html=True)
@@ -816,6 +863,7 @@ def render_audio_section(resposta_en):
                 return transcrito
     return None
 
+
 def render_vocabulary_section(vocab_data, progress):
     """Render premium vocabulary section"""
     st.markdown("<div class='premium-divider'></div>", unsafe_allow_html=True)
@@ -829,11 +877,17 @@ def render_vocabulary_section(vocab_data, progress):
     if "voc_index" not in st.session_state:
         st.session_state.voc_index = 0
 
+    # Ensure index is within bounds
+    st.session_state.voc_index = max(0, min(st.session_state.voc_index, len(palavras) - 1))
+    
     index = st.session_state.voc_index
     palavra_atual = palavras[index]
 
-    # Track seen vocabulary
-    progress["vocab_seen"].add(palavra_atual["en"])
+    # Track seen vocabulary (use list for JSON compatibility)
+    vocab_seen = progress.get("vocab_seen", [])
+    if palavra_atual["en"] not in vocab_seen:
+        vocab_seen.append(palavra_atual["en"])
+        progress["vocab_seen"] = vocab_seen
 
     # Vocabulary card
     st.markdown(f"""
@@ -862,6 +916,7 @@ def render_vocabulary_section(vocab_data, progress):
             st.session_state.voc_index = min(len(palavras) - 1, st.session_state.voc_index + 1)
             st.rerun()
 
+
 def render_achievements(progress):
     """Render achievements section"""
     if not progress["achievements"]:
@@ -875,14 +930,14 @@ def render_achievements(progress):
         ach = ACHIEVEMENTS.get(ach_id, {})
         with cols[i % 3]:
             st.markdown(f"""
-            <div class="achievement-card">
-                <div class="achievement-icon">{ach.get('icon', '🏅')}</div>
-                <div>
-                    <div style="font-weight:700;color:#fbbf24;">{ach.get('name', 'Unknown')}</div>
-                    <div style="font-size:0.875rem;color:#94a3b8;">{ach.get('desc', '')}</div>
-                </div>
+            <div style="background:rgba(30,41,59,0.5);border:1px solid rgba(245,158,11,0.3);
+                        border-radius:12px;padding:16px;text-align:center;margin-bottom:12px;">
+                <div style="font-size:2rem;margin-bottom:8px;">{ach.get('icon', '🏅')}</div>
+                <div style="font-weight:700;color:#fbbf24;font-size:0.95rem;">{ach.get('name', 'Unknown')}</div>
+                <div style="font-size:0.8rem;color:#94a3b8;">{ach.get('desc', '')}</div>
             </div>
             """, unsafe_allow_html=True)
+
 
 def render_history(history_data):
     """Render premium history table"""
@@ -898,19 +953,21 @@ def render_history(history_data):
         """, unsafe_allow_html=True)
         return
 
-    df = pd.DataFrame(history_data)
+    try:
+        df = pd.DataFrame(history_data)
+        st.dataframe(df, use_container_width=True, hide_index=True,
+                    column_config={
+                        "nivel": st.column_config.TextColumn("Nível", width="small"),
+                        "pergunta": st.column_config.TextColumn("Pergunta", width="large"),
+                        "resposta_usuario": st.column_config.TextColumn("Sua Resposta", width="large"),
+                        "resultado": st.column_config.TextColumn("Resultado", width="small"),
+                        "similaridade": st.column_config.ProgressColumn("Similaridade", 
+                                                                       min_value=0, max_value=1, 
+                                                                       format="%.0f%%", width="medium")
+                    })
+    except Exception:
+        st.write(history_data)
 
-    # Style the dataframe
-    st.dataframe(df, use_container_width=True, hide_index=True,
-                column_config={
-                    "nivel": st.column_config.TextColumn("Nível", width="small"),
-                    "pergunta": st.column_config.TextColumn("Pergunta", width="large"),
-                    "resposta_usuario": st.column_config.TextColumn("Sua Resposta", width="large"),
-                    "resultado": st.column_config.TextColumn("Resultado", width="small"),
-                    "similaridade": st.column_config.ProgressColumn("Similaridade", 
-                                                                   min_value=0, max_value=1, 
-                                                                   format="%.0f%%", width="medium")
-                })
 
 def render_new_achievements(new_achs):
     """Render new achievement notifications"""
@@ -932,6 +989,7 @@ def render_new_achievements(new_achs):
             </div>
         </div>
         """, unsafe_allow_html=True)
+
 
 # ============================================
 # MAIN APPLICATION
@@ -1048,7 +1106,7 @@ def main():
         if inc:
             st.session_state.streak += 1
             progress["xp"] += 10
-            progress["audio_used"] += 1
+            progress["audio_used"] = progress.get("audio_used", 0) + 1
         else:
             st.session_state.streak = 0
             if sim >= 0.75:
@@ -1063,7 +1121,6 @@ def main():
             "similaridade": round(sim, 2)
         })
 
-        progress["audio_used"] += 1
         new_achs = check_achievements(progress, st.session_state)
         if new_achs:
             st.session_state.new_achievements = new_achs
@@ -1106,6 +1163,7 @@ def main():
         <div>Almoxarifado Profissional — v2.0 Premium</div>
     </div>
     """, unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     main()
